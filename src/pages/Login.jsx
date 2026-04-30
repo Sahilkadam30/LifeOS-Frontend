@@ -6,20 +6,30 @@ import "../styles/Auth.css";
 const Login = () => {
   const [data, setData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(""); // 🔥 NEW
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     if (!data.username || !data.password) {
-      alert("Please fill in all fields");
+      setErrorMsg("Please fill in all fields");
       return;
     }
+
     setLoading(true);
+    setErrorMsg(""); // clear old error
+
     try {
       const res = await API.post("/auth/login", data);
-      localStorage.setItem("token", res.data.token);
-      navigate("/home");
+
+      if (res.data.success) {
+        localStorage.setItem("token", res.data.data);
+        navigate("/home");
+      } else {
+        setErrorMsg(res.data.message); // 🔥 show backend error
+      }
+
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+      setErrorMsg("Server error. Try again later.");
     } finally {
       setLoading(false);
     }
@@ -30,19 +40,34 @@ const Login = () => {
       <div className="auth-card">
         <h2>Login</h2>
 
-        <input placeholder="Username"
+        <input
+          placeholder="Username"
           disabled={loading}
-          onChange={(e) => setData({...data, username: e.target.value.toLowerCase()})} />
+          onChange={(e) =>
+            setData({ ...data, username: e.target.value.toLowerCase() })
+          }
+        />
 
-        <input type="password" placeholder="Password"
+        <input
+          type="password"
+          placeholder="Password"
           disabled={loading}
-          onChange={(e) => setData({...data, password: e.target.value})} />
+          onChange={(e) =>
+            setData({ ...data, password: e.target.value })
+          }
+        />
+
+        {/* 🔥 ERROR MESSAGE HERE */}
+        {errorMsg && <p className="error-text">{errorMsg}</p>}
 
         <button onClick={handleLogin} disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        <div className="switch-link" onClick={() => !loading && navigate("/register")}>
+        <div
+          className="switch-link"
+          onClick={() => !loading && navigate("/register")}
+        >
           Create Account
         </div>
       </div>
@@ -51,4 +76,3 @@ const Login = () => {
 };
 
 export default Login;
-

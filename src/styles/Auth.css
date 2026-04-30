@@ -48,3 +48,11 @@ body {
   cursor: pointer;
   color: black;
 }
+
+.error-text {
+  color: red;
+  font-size: 14px;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  text-align: left;
+}

@@ -7,16 +7,22 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+
+  // ⭐ ADD THIS BLOCK (FIX FOR sockjs global error)
+  define: {
+    global: 'window',
+  },
+
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4550',
+        target: 'http://127.0.0.1:4550',
         changeOrigin: true,
       },
       '/auth': {
-        target: 'http://localhost:4550',
+        target: 'http://127.0.0.1:4550',
         changeOrigin: true,
       },
     },
   },
-})
+})
