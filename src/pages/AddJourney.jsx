@@ -62,7 +62,7 @@ export default function AddJourney() {
 
       alert("Journey added successfully!");
 
-      navigate("/travel");
+      navigate("/home");
 
     } catch (err) {
       console.error(err);
@@ -80,7 +80,7 @@ export default function AddJourney() {
         <h4 style={{ color: "#C9996B" }}>Add Journey</h4>
         <button
           className="btn btn-secondary"
-          onClick={() => navigate("/travel")}
+          onClick={() => navigate("/home")}
         >
           Back
         </button>

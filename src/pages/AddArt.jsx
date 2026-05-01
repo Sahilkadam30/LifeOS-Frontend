@@ -76,7 +76,7 @@ export default function AddArt() {
 
       setSuccess(true);
 
-      setTimeout(() => navigate("/home"), 2000);
+      setTimeout(() => navigate("/art-zone"), 2000);
 
     } catch (error) {
       console.error(error);
@@ -174,7 +174,7 @@ export default function AddArt() {
 
         {/* CANCEL */}
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("/art-zone")}
           disabled={loading}
           className="mt-3 w-full border py-2 rounded-lg"
         >

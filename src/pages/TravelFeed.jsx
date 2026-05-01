@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api";
 import FloatingButton from "../components/FloatingButton";
 
 export default function TravelFeed() {
   const [posts, setPosts] = useState([]);
   const [likedPosts, setLikedPosts] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchPosts();
@@ -40,8 +42,7 @@ export default function TravelFeed() {
   };
 
   const handleAddJourney = () => {
-    console.log("Navigate to Add Journey Page");
-    // Example: navigate("/add-journey");
+    navigate("/add-journey");
   };
 
   return (

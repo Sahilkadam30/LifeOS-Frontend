@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LifeOSIntroAnimation from "./pages/LifeOSIntroAnimation";
 import TravelFeed from "./pages/TravelFeed";
+import AddJourney from "./pages/AddJourney";
 
 function App() {
   return (
@@ -13,6 +14,8 @@ function App() {
       <Routes>
         <Route path="/" element={<LifeOSIntroAnimation />} />
         <Route path="/home" element={<TravelFeed />} />
+        <Route path="/add-journey" element={<AddJourney />} />
+        <Route path="/art-zone" element={<ArtZone />} />
         <Route path="/add-art" element={<AddArt />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
