@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import API, { getAuthHeaders } from "../api";
+import API from "../api";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
@@ -40,9 +40,7 @@ export default function ArtZone() {
   // ================= FETCH POSTS =================
   const fetchPosts = async () => {
     try {
-      const res = await API.get("/api/art/posts", {
-        headers: getAuthHeaders(),
-      });
+      const res = await API.get("/art/posts"); // ✅ FIXED
 
       setPosts(res.data);
 
@@ -58,9 +56,7 @@ export default function ArtZone() {
   // ================= FETCH COMMENTS =================
   const fetchComments = async (postId) => {
     try {
-      const res = await API.get(`/api/art/comments/${postId}`, {
-        headers: getAuthHeaders(),
-      });
+      const res = await API.get(`/art/comments/${postId}`); // ✅ FIXED
 
       setComments(prev => ({
         ...prev,
@@ -78,7 +74,6 @@ export default function ArtZone() {
     stompClient = new Client({
       webSocketFactory: () => new SockJS("http://localhost:4550/ws"),
       reconnectDelay: 5000,
-      debug: (str) => console.log(str),
     });
 
     stompClient.onConnect = () => {
@@ -99,32 +94,25 @@ export default function ArtZone() {
     stompClient.activate();
   };
 
-  // ================= ADD COMMENT (REAL-TIME) =================
+  // ================= ADD COMMENT =================
   const addComment = (postId) => {
-  if (!stompClient || !stompClient.connected) {
-    console.log("WebSocket not connected yet");
-    return;
-  }
+    if (!stompClient || !stompClient.connected) return;
 
-  const text = commentText[postId];
-  if (!text) return;
+    const text = commentText[postId];
+    if (!text) return;
 
-  stompClient.publish({
-    destination: "/app/comment",
-    body: JSON.stringify({ postId, text, username: user }),
-  });
+    stompClient.publish({
+      destination: "/app/comment",
+      body: JSON.stringify({ postId, text, username: user }),
+    });
 
-  setCommentText(prev => ({ ...prev, [postId]: "" }));
-};
+    setCommentText(prev => ({ ...prev, [postId]: "" }));
+  };
 
   // ================= LIKE =================
   const likePost = async (id) => {
     try {
-      const res = await API.post(
-        `/api/art/like/${id}`,
-        {},
-        { headers: getAuthHeaders() }
-      );
+      const res = await API.post(`/art/like/${id}`); // ✅ FIXED
 
       setPosts(posts.map(p =>
         p.id === id ? { ...p, likes: res.data } : p
@@ -148,9 +136,7 @@ export default function ArtZone() {
   // ================= DELETE =================
   const deletePost = async (id) => {
     try {
-      await API.delete(`/api/art/post/${id}`, {
-        headers: getAuthHeaders(),
-      });
+      await API.delete(`/art/post/${id}`); // ✅ FIXED
 
       setPosts(posts.filter(p => p.id !== id));
     } catch (err) {
@@ -168,7 +154,6 @@ export default function ArtZone() {
   return (
     <div className="min-h-screen bg-[#C9996B] text-black p-5">
 
-      {/* HEADER */}
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-3xl font-bold">{user}'s Art Zone</h1>
 
@@ -180,13 +165,11 @@ export default function ArtZone() {
         </button>
       </div>
 
-      {/* GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {posts.map(post => (
           <div key={post.id} className="bg-white p-4 rounded-xl shadow">
 
-            {/* IMAGE */}
             <div
               className="relative"
               onDoubleClick={() => handleDoubleTap(post.id)}
@@ -208,10 +191,8 @@ export default function ArtZone() {
               </span>
             </div>
 
-            {/* CAPTION */}
             <p className="mt-2 font-medium">{post.caption}</p>
 
-            {/* LIKE + DELETE */}
             <div className="flex justify-between mt-2">
               <button
                 onClick={() => likePost(post.id)}
@@ -230,7 +211,6 @@ export default function ArtZone() {
               )}
             </div>
 
-            {/* COMMENTS */}
             <div className="mt-3">
               {(comments[post.id] || []).map(c => (
                 <p key={c.id} className="text-sm">
@@ -265,7 +245,6 @@ export default function ArtZone() {
         ))}
       </div>
 
-      {/* FLOAT BUTTON */}
       <button
         className="fixed bottom-6 right-6 bg-black text-white w-14 h-14 rounded-full text-2xl"
         onClick={() => navigate("/add-art")}

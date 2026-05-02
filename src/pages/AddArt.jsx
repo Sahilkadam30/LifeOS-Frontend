@@ -1,5 +1,5 @@
 import { useState } from "react";
-import API, { getAuthHeaders } from "../api";
+import API from "../api";
 import { useNavigate } from "react-router-dom";
 
 export default function AddArt() {
@@ -12,7 +12,6 @@ export default function AddArt() {
 
   const navigate = useNavigate();
 
-  // ================= FILE HANDLING =================
   const handleFiles = (selectedFiles) => {
     const fileArray = Array.from(selectedFiles);
 
@@ -30,10 +29,7 @@ export default function AddArt() {
     handleFiles(e.dataTransfer.files);
   };
 
-  // ================= AI CAPTION =================
   const generateCaption = () => {
-    if (files.length === 0) return;
-
     const suggestions = [
       "Lost in creativity 🎨",
       "Art speaks where words fail ✨",
@@ -46,7 +42,6 @@ export default function AddArt() {
     setCaption(random);
   };
 
-  // ================= SUBMIT =================
   const handleSubmit = async () => {
     if (files.length === 0) {
       alert("Please select at least one file");
@@ -62,11 +57,7 @@ export default function AddArt() {
         formData.append("file", files[i]);
         formData.append("caption", caption);
 
-        await API.post("/api/art/post", formData, {
-          headers: {
-            ...getAuthHeaders(),
-            "Content-Type": "multipart/form-data",
-          },
+        await API.post("/art/post", formData, {
           onUploadProgress: (e) => {
             const percent = Math.round((e.loaded * 100) / e.total);
             setProgress(percent);
@@ -86,11 +77,9 @@ export default function AddArt() {
     }
   };
 
-  // ================= UI =================
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#C9996B]">
 
-      {/* SUCCESS POPUP */}
       {success && (
         <div className="fixed top-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
           🎉 Uploaded Successfully!
@@ -103,14 +92,13 @@ export default function AddArt() {
           Upload Your Art
         </h2>
 
-        {/* DRAG & DROP */}
         <div
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
-          className="border-2 border-dashed p-6 text-center rounded-lg cursor-pointer hover:bg-gray-50"
+          className="border-2 border-dashed p-6 text-center rounded-lg cursor-pointer"
         >
           Drag & Drop images here  
-          <br /> or click below
+          <br /> or select below
         </div>
 
         <input
@@ -121,7 +109,6 @@ export default function AddArt() {
           className="mt-3 w-full"
         />
 
-        {/* PREVIEW GRID */}
         <div className="grid grid-cols-3 gap-2 mt-4">
           {previews.map((img, i) => (
             <img
@@ -133,7 +120,6 @@ export default function AddArt() {
           ))}
         </div>
 
-        {/* CAPTION */}
         <textarea
           placeholder="Write your caption..."
           className="w-full mt-4 border p-3 rounded-lg h-24"
@@ -142,7 +128,6 @@ export default function AddArt() {
           onChange={(e) => setCaption(e.target.value)}
         />
 
-        {/* AI BUTTON */}
         <button
           onClick={generateCaption}
           disabled={loading}
@@ -151,7 +136,6 @@ export default function AddArt() {
           🤖 Generate Caption
         </button>
 
-        {/* PROGRESS BAR */}
         {loading && (
           <div className="w-full bg-gray-200 rounded mt-3">
             <div
@@ -163,7 +147,6 @@ export default function AddArt() {
           </div>
         )}
 
-        {/* POST BUTTON */}
         <button
           onClick={handleSubmit}
           disabled={loading}
@@ -172,7 +155,6 @@ export default function AddArt() {
           {loading ? "Uploading..." : "Post"}
         </button>
 
-        {/* CANCEL */}
         <button
           onClick={() => navigate("/art-zone")}
           disabled={loading}

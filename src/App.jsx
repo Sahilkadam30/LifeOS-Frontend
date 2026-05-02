@@ -15,8 +15,6 @@ function App() {
         <Route path="/" element={<LifeOSIntroAnimation />} />
         <Route path="/home" element={<TravelFeed />} />
         <Route path="/add-journey" element={<AddJourney />} />
-        <Route path="/art-zone" element={<ArtZone />} />
-        <Route path="/add-art" element={<AddArt />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

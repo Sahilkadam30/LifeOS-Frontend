@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
+import imageCompression from "browser-image-compression";
+import "../styles/AddJourney.css";
 
 export default function AddJourney() {
   const navigate = useNavigate();
@@ -10,36 +12,74 @@ export default function AddJourney() {
   const [images, setImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  // 📸 Handle Image Selection
-  const handleImageChange = (e) => {
+  // 🔥 Drag & Drop
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    await processImages(files);
+  };
+
+  const handleDragOver = (e) => e.preventDefault();
+
+  // 📸 Input Upload
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
-
-    setImages((prev) => [...prev, ...files]);
-
-    const newPreviewUrls = files.map((file) =>
-      URL.createObjectURL(file)
-    );
-
-    setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+    await processImages(files);
   };
 
-  // ❌ Remove Image
+  // 🧠 Compress + Store
+  const processImages = async (files) => {
+    const compressedImages = [];
+    const previews = [];
+
+    for (let file of files) {
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      });
+
+      compressedImages.push(compressed);
+      previews.push(URL.createObjectURL(compressed));
+    }
+
+    setImages((prev) => [...prev, ...compressedImages]);
+    setPreviewUrls((prev) => [...prev, ...previews]);
+  };
+
+  // ❌ Remove
   const removeImage = (index) => {
-    const updatedImages = [...images];
-    const updatedPreviews = [...previewUrls];
+    const newImgs = [...images];
+    const newPrev = [...previewUrls];
 
-    updatedImages.splice(index, 1);
-    updatedPreviews.splice(index, 1);
+    newImgs.splice(index, 1);
+    newPrev.splice(index, 1);
 
-    setImages(updatedImages);
-    setPreviewUrls(updatedPreviews);
+    setImages(newImgs);
+    setPreviewUrls(newPrev);
   };
 
-  // 🚀 Submit Form
+  // 🔄 Reorder
+  const moveImage = (index, direction) => {
+    const newImgs = [...images];
+    const newPrev = [...previewUrls];
+
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= images.length) return;
+
+    [newImgs[index], newImgs[newIndex]] = [newImgs[newIndex], newImgs[index]];
+    [newPrev[index], newPrev[newIndex]] = [newPrev[newIndex], newPrev[index]];
+
+    setImages(newImgs);
+    setPreviewUrls(newPrev);
+  };
+
+  // 🚀 Submit with progress
   const handleSubmit = async () => {
     if (!placeName || !caption || images.length === 0) {
-      alert("Please fill all fields and add at least one image");
+      alert("Please fill all fields and add images");
       return;
     }
 
@@ -50,25 +90,26 @@ export default function AddJourney() {
       formData.append("placeName", placeName);
       formData.append("caption", caption);
 
-      images.forEach((img) => {
-        formData.append("images", img);
-      });
+      images.forEach((img) => formData.append("images", img));
 
       await API.post("/travel/post", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setProgress(percent);
         },
       });
 
-      alert("Journey added successfully!");
-
+      alert("Uploaded successfully!");
       navigate("/home");
 
     } catch (err) {
       console.error(err);
-      alert("Error uploading journey");
+      alert("Upload failed");
     } finally {
       setLoading(false);
+      setProgress(0);
     }
   };
 
@@ -76,77 +117,68 @@ export default function AddJourney() {
     <div className="container mt-4">
 
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between mb-3">
         <h4 style={{ color: "#C9996B" }}>Add Journey</h4>
-        <button
-          className="btn btn-secondary"
-          onClick={() => navigate("/home")}
-        >
+        <button className="btn btn-secondary" onClick={() => navigate("/home")}>
           Back
         </button>
       </div>
 
-      {/* Form */}
-      <div className="card p-3 shadow-sm">
+      <div className="card p-4 shadow-sm">
 
-        {/* Place Name */}
-        <div className="mb-3">
-          <label className="form-label">Place Name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter place name"
-            value={placeName}
-            onChange={(e) => setPlaceName(e.target.value)}
-          />
+        {/* Inputs */}
+        <input
+          className="form-control mb-3"
+          placeholder="Place Name"
+          value={placeName}
+          onChange={(e) => setPlaceName(e.target.value)}
+        />
+
+        <textarea
+          className="form-control mb-3"
+          placeholder="Caption"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+        />
+
+        {/* 🔥 Drag Drop Zone */}
+        <div
+          className="drop-zone mb-3"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+        >
+          Drag & Drop Images OR Click Below
+          <input type="file" multiple onChange={handleImageChange} />
         </div>
 
-        {/* Caption */}
-        <div className="mb-3">
-          <label className="form-label">Caption</label>
-          <textarea
-            className="form-control"
-            rows="3"
-            placeholder="Write your travel story..."
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-          />
-        </div>
-
-        {/* Image Upload */}
-        <div className="mb-3">
-          <label className="form-label">Upload Images</label>
-          <input
-            type="file"
-            className="form-control"
-            multiple
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-        </div>
-
-        {/* 🖼️ Image Preview Grid */}
-        <div className="row">
+        {/* 🖼️ Preview */}
+        <div className="image-grid">
           {previewUrls.map((url, index) => (
-            <div key={index} className="col-4 mb-3 position-relative">
+            <div key={index} className="image-card">
 
-              <img
-                src={url}
-                alt="preview"
-                className="img-fluid rounded"
-                style={{ height: "120px", objectFit: "cover" }}
-              />
+              <img src={url} alt="" />
 
-              {/* Remove Button */}
-              <button
-                className="btn btn-danger btn-sm position-absolute top-0 end-0"
-                onClick={() => removeImage(index)}
-              >
-                ✕
-              </button>
+              <div className="controls">
+                <button onClick={() => moveImage(index, -1)}>⬅</button>
+                <button onClick={() => moveImage(index, 1)}>➡</button>
+                <button onClick={() => removeImage(index)}>❌</button>
+              </div>
+
             </div>
           ))}
         </div>
+
+        {/* 📊 Progress */}
+        {loading && (
+          <div className="progress mt-3">
+            <div
+              className="progress-bar"
+              style={{ width: `${progress}%`, background: "#C9996B" }}
+            >
+              {progress}%
+            </div>
+          </div>
+        )}
 
         {/* Submit */}
         <button
