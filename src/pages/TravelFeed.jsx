@@ -13,31 +13,54 @@ export default function TravelFeed() {
   const [likedPosts, setLikedPosts] = useState({});
   const [showHeart, setShowHeart] = useState({});
   const [currentIndex, setCurrentIndex] = useState({});
+  const [commentText, setCommentText] = useState({});
+  const [currentUser, setCurrentUser] = useState("");
+  const [showComments, setShowComments] = useState({});
+
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchPosts();
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setCurrentUser(payload.sub);
+    }
   }, []);
 
+  // FETCH
   const fetchPosts = async () => {
     try {
       const res = await API.get("/travel/my");
-      const data = res.data;
-
-      if (Array.isArray(data)) setPosts(data);
-      else if (Array.isArray(data.content)) setPosts(data.content);
-      else setPosts([]);
+      setPosts(res.data);
     } catch (err) {
       console.error(err);
-      setPosts([]);
     }
   };
 
-  // ❤️ DOUBLE TAP LIKE
-  const handleDoubleTap = (postId) => {
-    setLikedPosts((prev) => ({ ...prev, [postId]: true }));
+  // LIKE
+  const likePost = async (postId) => {
+    try {
+      const res = await API.post(`/travel/like/${postId}`);
 
-    // show heart animation
+      setPosts(posts.map((p) =>
+        p.id === postId ? { ...p, likeCount: res.data } : p
+      ));
+
+      setLikedPosts((prev) => ({ ...prev, [postId]: true }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // DOUBLE TAP
+  const handleDoubleTap = (postId) => {
+    likePost(postId);
+
     setShowHeart((prev) => ({ ...prev, [postId]: true }));
 
     setTimeout(() => {
@@ -45,19 +68,58 @@ export default function TravelFeed() {
     }, 800);
   };
 
+  // COMMENT
+  const addComment = async (postId) => {
+    try {
+      const text = commentText[postId];
+      if (!text) return;
+
+      const res = await API.post(`/travel/comment/${postId}`, text, {
+        headers: { "Content-Type": "text/plain" },
+      });
+
+      setPosts(posts.map((p) =>
+        p.id === postId
+          ? { ...p, comments: [...(p.comments || []), res.data] }
+          : p
+      ));
+
+      setCommentText((prev) => ({ ...prev, [postId]: "" }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // DELETE
+  const openDeletePopup = (postId) => {
+    setSelectedPostId(postId);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await API.delete(`/travel/post/${selectedPostId}`);
+      setPosts(prev => prev.filter(p => p.id !== selectedPostId));
+      setShowConfirm(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
+    setSelectedPostId(null);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  const handleAddJourney = () => {
-    navigate("/add-journey");
-  };
-
   return (
     <div className="container-fluid mt-3 px-4">
 
-      {/* Header */}
+      {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 style={{ color: "#C9996B" }}>Travel Track</h4>
 
@@ -65,7 +127,7 @@ export default function TravelFeed() {
           <button
             className="btn me-2"
             style={{ backgroundColor: "#C9996B", color: "white" }}
-            onClick={handleAddJourney}
+            onClick={() => navigate("/add-journey")}
           >
             + Add Place
           </button>
@@ -83,66 +145,161 @@ export default function TravelFeed() {
       <div className="post-grid">
         {posts.map((post) => (
           <div key={post.id}>
-
             <div className="card post-card">
 
-              {/* ❤️ HEART BURST */}
+              {/* IMAGE */}
               <div
-  className="image-container"
-  onDoubleClick={() => handleDoubleTap(post.id)}
->
-  {/* ❤️ Heart */}
-  {showHeart[post.id] && (
-    <div className="heart-animation">❤️</div>
-  )}
+                className="image-container"
+                onDoubleClick={() => handleDoubleTap(post.id)}
+              >
+                {showHeart[post.id] && (
+                  <div className="heart-animation">❤️</div>
+                )}
 
-  {/* 🔢 Image Counter */}
-  {post.images?.length > 1 && (
-    <div className="image-counter">
-      {(currentIndex[post.id] || 0) + 1}/{post.images.length}
-    </div>
-  )}
+                {post.images?.length > 1 && (
+                  <div className="image-counter">
+                    {(currentIndex[post.id] || 0) + 1}/{post.images.length}
+                  </div>
+                )}
 
-  {/* 🖼️ Swiper */}
-  {post.images?.length > 0 && (
-    <Swiper
-      spaceBetween={10}
-      onSlideChange={(swiper) =>
-        setCurrentIndex((prev) => ({
-          ...prev,
-          [post.id]: swiper.activeIndex,
-        }))
-      }
-    >
-      {post.images.map((img) => (
-        <SwiperSlide key={img.id}>
-          <img src={img.imageUrl} className="post-img" alt="" />
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  )}
-</div>
+                {post.images?.length > 0 && (
+                  <Swiper
+                    spaceBetween={10}
+                    onSlideChange={(swiper) =>
+                      setCurrentIndex((prev) => ({
+                        ...prev,
+                        [post.id]: swiper.activeIndex,
+                      }))
+                    }
+                  >
+                    {post.images.map((img) => (
+                      <SwiperSlide key={img.id}>
+                        <img src={img.imageUrl} className="post-img" alt="" />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                )}
+              </div>
 
-              {/* Content */}
+              {/* CONTENT */}
               <div className="card-body">
+
                 <h6>{post.caption}</h6>
 
                 <p className="text-muted small">
                   {new Date(post.createdAt).toLocaleString()}
                 </p>
 
-                <span className="like-btn">
-                  {likedPosts[post.id] ? "❤️" : "🤍"}
-                </span>
+                {/* ACTION BAR */}
+                <div className="action-bar">
+
+  {/* LIKE */}
+  <span
+    className="action-btn"
+    onClick={() => likePost(post.id)}
+  >
+    <span className="icon">❤️</span>
+    <span className="label">Like</span>
+    <span className="count">{post.likeCount || 0}</span>
+  </span>
+
+  {/* COMMENT */}
+  <span
+    className="action-btn"
+    onClick={() =>
+      setShowComments((prev) => ({
+        ...prev,
+        [post.id]: !prev[post.id],
+      }))
+    }
+  >
+    <span className="icon">💬</span>
+    <span className="label">Comment</span>
+    <span className="count">{post.comments?.length || 0}</span>
+  </span>
+
+  {/* DELETE */}
+  {post.user?.username === currentUser && (
+    <span
+      className="action-btn delete-btn"
+      onClick={() => openDeletePopup(post.id)}
+    >
+      <span className="icon">🗑</span>
+      <span className="label">Delete</span>
+    </span>
+  )}
+
+</div>
+
+                {/* COMMENTS */}
+                {showComments[post.id] && (
+                  <div className="comment-section">
+
+                    {post.comments?.map((c) => (
+                      <p key={c.id} className="mb-1">
+                        <b>{c.user?.username}</b>: {c.text}
+                      </p>
+                    ))}
+
+                    <div className="d-flex mt-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Add comment..."
+                        value={commentText[post.id] || ""}
+                        onChange={(e) =>
+                          setCommentText({
+                            ...commentText,
+                            [post.id]: e.target.value,
+                          })
+                        }
+                      />
+
+                      <button
+                        className="btn btn-primary ms-2"
+                        onClick={() => addComment(post.id)}
+                      >
+                        Post
+                      </button>
+                    </div>
+
+                  </div>
+                )}
+
               </div>
-
             </div>
-
           </div>
         ))}
       </div>
 
-      <FloatingButton onClick={handleAddJourney} />
+      {/* DELETE POPUP */}
+      {showConfirm && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h5>Are you sure?</h5>
+            <p>You want to delete this post</p>
+
+            <div className="d-flex justify-content-between mt-3">
+  <button
+    className="btn"
+    style={{ backgroundColor: "#C9996B", color: "white" }}
+    onClick={confirmDelete}
+  >
+    Yes, Delete
+  </button>
+
+  <button
+    className="btn btn-outline-secondary"
+    onClick={cancelDelete}
+  >
+    Cancel
+  </button>
+</div>
+          </div>
+        </div>
+      )}
+
+      <FloatingButton onClick={() => navigate("/add-journey")} />
     </div>
   );
 }

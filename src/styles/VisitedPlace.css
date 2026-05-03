@@ -1,0 +1,23 @@
+/* src/styles/dashboard.css */
+
+:root {
+  --primary: #C9996B;
+}
+
+body {
+  background: #f5f5f5;
+}
+
+.card-box {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+  background-color: #C9996B !important;
+  border: none;
+}
