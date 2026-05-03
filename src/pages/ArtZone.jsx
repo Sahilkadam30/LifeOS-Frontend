@@ -17,26 +17,6 @@ export default function ArtZone() {
 
   const navigate = useNavigate();
 
-  // ================= INIT =================
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode(token);
-      setUser(decoded.sub);
-      fetchPosts();
-    } catch (error) {
-      console.error("Invalid token:", error);
-      localStorage.removeItem("token");
-      navigate("/login");
-    }
-  }, []);
-
   // ================= FETCH POSTS =================
   const fetchPosts = async () => {
     try {
@@ -93,6 +73,26 @@ export default function ArtZone() {
 
     stompClient.activate();
   };
+
+  // ================= INIT =================
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode(token);
+      setUser(decoded.sub);
+      fetchPosts();
+    } catch (error) {
+      console.error("Invalid token:", error);
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  }, []);
 
   // ================= ADD COMMENT =================
   const addComment = (postId) => {
