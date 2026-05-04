@@ -10,10 +10,6 @@ export default function VisitedPlace() {
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
       const v = await API.get("/visited");
@@ -25,6 +21,10 @@ export default function VisitedPlace() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="container-fluid p-4">

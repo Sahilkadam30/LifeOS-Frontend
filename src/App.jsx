@@ -7,9 +7,9 @@ import Register from "./pages/Register";
 import LifeOSIntroAnimation from "./pages/LifeOSIntroAnimation";
 import TravelFeed from "./pages/TravelFeed";
 import AddJourney from "./pages/AddJourney";
-import VisitedPlace from "./pages/visitedplace";
+import VisitedPlace from "./pages/VisitedPlace";
 import AddVisited from "./pages/AddVisited";
-import MapView from "./components/MapView";
+import AddWishlist from "./pages/AddWishlist";
 
 function App() {
   return (
@@ -17,8 +17,14 @@ function App() {
       <Routes>
         <Route path="/" element={<LifeOSIntroAnimation />} />
         <Route path="/home" element={<VisitedPlace />} />
+        <Route path="/travel" element={<TravelFeed />} />
+        <Route path="/add-journey" element={<AddJourney />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/art-zone" element={<ArtZone />} />
+        <Route path="/add-art" element={<AddArt />} />
+        <Route path="/add-visited" element={<AddVisited />} />
+        <Route path="/add-wishlist" element={<AddWishlist />} />
       </Routes>
     </BrowserRouter>
   );

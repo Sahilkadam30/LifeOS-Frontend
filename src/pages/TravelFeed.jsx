@@ -22,16 +22,6 @@ export default function TravelFeed() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchPosts();
-
-    const token = localStorage.getItem("token");
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setCurrentUser(payload.sub);
-    }
-  }, []);
-
   // FETCH
   const fetchPosts = async () => {
     try {
@@ -41,6 +31,16 @@ export default function TravelFeed() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    fetchPosts();
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setCurrentUser(payload.sub);
+    }
+  }, []);
 
   // LIKE
   const likePost = async (postId) => {
