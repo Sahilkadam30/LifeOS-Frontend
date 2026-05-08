@@ -1,34 +1,110 @@
-// src/components/MapView.jsx
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useEffect } from "react";
+import { useMap } from "react-leaflet";
+
 import L from "leaflet";
 
 const greenIcon = new L.Icon({
   iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
-  iconSize: [25, 25],
+  iconSize: [30, 30],
 });
 
 const orangeIcon = new L.Icon({
   iconUrl: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png",
-  iconSize: [25, 25],
+  iconSize: [30, 30],
 });
 
-export default function MapView({ visited, wishlist }) {
+// ✅ Fix blank map rendering
+function ResizeMap() {
+  const map = useMap();
+
+  useEffect(() => {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+  }, [map]);
+
+  return null;
+}
+
+// 📍 Click map
+function LocationMarker({ setCoordinates }) {
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+
+      setCoordinates({
+        latitude: lat,
+        longitude: lng,
+      });
+    },
+  });
+
+  return null;
+}
+
+export default function MapView({
+  visited,
+  wishlist,
+  setCoordinates,
+}) {
   return (
-    <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: "500px", borderRadius: "10px" }}>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+    <div className="map-wrapper">
+      <MapContainer
+        center={[20.5937, 78.9629]}
+        zoom={5}
+        scrollWheelZoom={true}
+      >
+        {/* ✅ IMPORTANT */}
+        <ResizeMap />
 
-      {visited.map(v => (
-        <Marker key={v.id} position={[v.latitude, v.longitude]} icon={greenIcon}>
-          <Popup>{v.placeName}</Popup>
-        </Marker>
-      ))}
+        <TileLayer
+          attribution='&copy; OpenStreetMap contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
 
-      {wishlist.map(w => (
-        <Marker key={w.id} position={[w.latitude, w.longitude]} icon={orangeIcon}>
-          <Popup>{w.placeName}</Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+        {/* Click event */}
+        {setCoordinates && (
+          <LocationMarker setCoordinates={setCoordinates} />
+        )}
+
+        {/* Visited */}
+        {visited?.map((v) => (
+          <Marker
+            key={v.id}
+            position={[v.latitude, v.longitude]}
+            icon={greenIcon}
+          >
+            <Popup>
+              <b>{v.placeName}</b>
+              <br />
+              {v.city}
+            </Popup>
+          </Marker>
+        ))}
+
+        {/* Wishlist */}
+        {wishlist?.map((w) => (
+          <Marker
+            key={w.id}
+            position={[w.latitude, w.longitude]}
+            icon={orangeIcon}
+          >
+            <Popup>
+              <b>{w.placeName}</b>
+              <br />
+              {w.city}
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
   );
 }

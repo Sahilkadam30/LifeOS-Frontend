@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api"
 import MapView from "../components/MapView";
 import "../styles/VisitedPlace.css";
-import { useNavigate } from "react-router-dom";
 import AddWishlist from "./AddWishlist";
 
 export default function VisitedPlace() {
@@ -25,6 +25,28 @@ export default function VisitedPlace() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await API.delete(`/visited/${id}`);
+
+    fetchData();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const handleEdit = (trip) => {
+  navigate(`/edit-visited/${trip.id}`, {
+    state: trip,
+  });
+};
 
   return (
     <div className="container-fluid p-4">
@@ -65,15 +87,32 @@ export default function VisitedPlace() {
               </tr>
             </thead>
             <tbody>
-              {visited.map(v => (
-                <tr key={v.id}>
-                  <td>{v.placeName}</td>
-                  <td>{v.type}</td>
-                  <td>{v.visitedOn}</td>
-                  <td>{v.city}</td>
-                </tr>
-              ))}
-            </tbody>
+  {visited.map((v) => (
+    <tr key={v.id}>
+      <td>{v.placeName}</td>
+      <td>{v.type}</td>
+      <td>{v.visitedOn}</td>
+      <td>{v.city}</td>
+
+      {/* ✅ ACTION BUTTONS */}
+      <td>
+        <button
+          className="btn btn-sm btn-warning me-2"
+          onClick={() => handleEdit(v)}
+        >
+          Edit
+        </button>
+
+        <button
+          className="btn btn-sm btn-danger"
+          onClick={() => handleDelete(v.id)}
+        >
+          Delete
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
 
           <h5>Wishlist</h5>
