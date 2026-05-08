@@ -3,9 +3,13 @@ import { useNavigate } from "react-router-dom";
 import API from "../api";
 import "../styles/Dashboard.css";
 
+import { useDispatch } from "react-redux";
+import { logout } from "../components/store/slice/auth.slice";
+
 export default function Dashboard() {
   const [data, setData] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchDashboard();
@@ -18,8 +22,7 @@ export default function Dashboard() {
     } catch (err) {
       console.log(err);
       alert("Unauthorized! Please login again.");
-      localStorage.removeItem("token");
-      navigate("/login");
+      dispatch(logout());
     }
   };
 
