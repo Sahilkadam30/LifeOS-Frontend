@@ -101,7 +101,9 @@ export default function VisitedPlace() {
           <div className="top-actions">
             <button
               className="add-btn"
-              onClick={() => navigate("/add-visited")}
+              onClick={() =>
+                    navigate("/manage-trip")
+                  }
             >
               + Add New
             </button>
@@ -165,15 +167,6 @@ export default function VisitedPlace() {
             <div className="custom-card">
               <div className="card-header">
                 <h4>Visited Trips</h4>
-
-                <button
-                  className="small-btn"
-                  onClick={() =>
-                    navigate("/add-visited")
-                  }
-                >
-                  + Add Visited
-                </button>
               </div>
 
               <table className="table">
@@ -183,7 +176,6 @@ export default function VisitedPlace() {
                     <th>Type</th>
                     <th>Date</th>
                     <th>City</th>
-                    <th>Action</th>
                   </tr>
                 </thead>
 
@@ -194,28 +186,6 @@ export default function VisitedPlace() {
                       <td>{v.type}</td>
                       <td>{v.visitedOn}</td>
                       <td>{v.city}</td>
-
-                      <td>
-                        <div className="action-btns">
-                          <button
-                            className="edit-btn"
-                            onClick={() =>
-                              handleEdit(v)
-                            }
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            className="delete-btn"
-                            onClick={() =>
-                              handleDelete(v.id)
-                            }
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -230,15 +200,6 @@ export default function VisitedPlace() {
             <div className="custom-card">
               <div className="card-header">
                 <h4>Wishlist</h4>
-
-                <button
-                  className="small-btn"
-                  onClick={() =>
-                    navigate("/add-wishlist")
-                  }
-                >
-                  + Add Wishlist
-                </button>
               </div>
 
               <table className="table">

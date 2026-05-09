@@ -8,13 +8,13 @@ import LifeOSIntroAnimation from "./pages/LifeOSIntroAnimation";
 import TravelFeed from "./pages/TravelFeed";
 import AddJourney from "./pages/AddJourney";
 import VisitedPlace from "./pages/VisitedPlace";
-import AddVisited from "./pages/AddVisited";
-import AddWishlist from "./pages/AddWishlist";
 import Dashboard from "./pages/Dashboard";
+import ManageTrip from "./pages/ManageTrip";
 import "leaflet/dist/leaflet.css";
 import { Provider } from "react-redux";
 import { store, persistor } from "./components/store/auth.store";
 import { PersistGate } from "redux-persist/integration/react";
+import "leaflet-geosearch/dist/geosearch.css";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -35,8 +35,7 @@ function App() {
           <Route path="/add-journey" element={<ProtectedRoute><AddJourney /></ProtectedRoute>} />
           <Route path="/art-zone" element={<ProtectedRoute><ArtZone /></ProtectedRoute>} />
           <Route path="/add-art" element={<ProtectedRoute><AddArt /></ProtectedRoute>} />
-          <Route path="/add-visited" element={<ProtectedRoute><AddVisited /></ProtectedRoute>} />
-          <Route path="/add-wishlist" element={<ProtectedRoute><AddWishlist /></ProtectedRoute>} />
+          <Route path="/manage-trip" element={<ProtectedRoute><ManageTrip /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
       </PersistGate>
