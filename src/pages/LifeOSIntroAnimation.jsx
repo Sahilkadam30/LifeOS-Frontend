@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/LifeOSIntroAnimation.css";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const lines = [
   "Learning something new ✨",
@@ -12,12 +13,16 @@ const lines = [
 ];
 
 const LifeOSIntroAnimation = () => {
+
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [showText, setShowText] = useState(false);
 
   const navigate = useNavigate();
 
+  const token = useSelector((state) => state.auth.token);
+
   useEffect(() => {
+
     let index = localStorage.getItem("lifeos_line_index");
 
     if (index === null) {
@@ -27,22 +32,35 @@ const LifeOSIntroAnimation = () => {
     }
 
     localStorage.setItem("lifeos_line_index", index);
+
     setCurrentLineIndex(index);
 
     // Show text after logo
-    setTimeout(() => {
+    const textTimer = setTimeout(() => {
       setShowText(true);
     }, 2000);
 
-    // 🔥 Auto redirect after 3 sec
-    setTimeout(() => {
-      navigate("/home"); // change route if needed
+    // Redirect after animation
+    const redirectTimer = setTimeout(() => {
+
+      if (token) {
+        navigate("/home");
+      } else {
+        navigate("/login");
+      }
+
     }, 3000);
 
-  }, [navigate]);
+    return () => {
+      clearTimeout(textTimer);
+      clearTimeout(redirectTimer);
+    };
+
+  }, [navigate, token]);
 
   return (
     <div className="lifeos-container">
+
       <h1 className="lifeos-logo">
         {"LifeOS".split("").map((char, index) => (
           <span key={index} className="letter">
@@ -58,6 +76,7 @@ const LifeOSIntroAnimation = () => {
           {lines[currentLineIndex]}
         </p>
       )}
+
     </div>
   );
 };

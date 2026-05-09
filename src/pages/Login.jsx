@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../components/store/slice/auth.slice";
 import "../styles/Auth.css";
 
 const Login = () => {
+  const dispatch = useDispatch();
   const [data, setData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(""); // 🔥 NEW
+  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -16,18 +19,23 @@ const Login = () => {
     }
 
     setLoading(true);
-    setErrorMsg(""); // clear old error
+    setErrorMsg("");
 
     try {
       const res = await API.post("/auth/login", data);
 
       if (res.data.success) {
-        localStorage.setItem("token", res.data.data);
+        const { token, user } = res.data.data;
+
+        console.log("res.data.data", res.data.data);
+
+        dispatch(login({ token, user: user }));
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", user.id);
         navigate("/home");
       } else {
-        setErrorMsg(res.data.message); // 🔥 show backend error
+        setErrorMsg(res.data.message);
       }
-
     } catch (error) {
       setErrorMsg("Server error. Try again later.");
     } finally {
@@ -52,12 +60,9 @@ const Login = () => {
           type="password"
           placeholder="Password"
           disabled={loading}
-          onChange={(e) =>
-            setData({ ...data, password: e.target.value })
-          }
+          onChange={(e) => setData({ ...data, password: e.target.value })}
         />
 
-        {/* 🔥 ERROR MESSAGE HERE */}
         {errorMsg && <p className="error-text">{errorMsg}</p>}
 
         <button onClick={handleLogin} disabled={loading}>

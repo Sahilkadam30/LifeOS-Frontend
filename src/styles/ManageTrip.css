@@ -1,0 +1,64 @@
+.manage-trip-page {
+  padding: 25px;
+  background: #f7f7f7;
+  min-height: 100vh;
+}
+
+.manage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trip-tabs {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.trip-tabs button {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #ddd;
+  cursor: pointer;
+}
+
+.tab-active {
+  background: #C9996B !important;
+  color: white;
+}
+
+.manage-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+}
+
+.form-card {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.form-card input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.form-card button {
+  width: 100%;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  background: #C9996B;
+  color: white;
+  margin-top: 15px;
+}
+
+.map-section {
+  height: 700px;
+}

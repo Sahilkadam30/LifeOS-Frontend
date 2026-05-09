@@ -8,25 +8,38 @@ import LifeOSIntroAnimation from "./pages/LifeOSIntroAnimation";
 import TravelFeed from "./pages/TravelFeed";
 import AddJourney from "./pages/AddJourney";
 import VisitedPlace from "./pages/VisitedPlace";
-import AddVisited from "./pages/AddVisited";
-import AddWishlist from "./pages/AddWishlist";
+import Dashboard from "./pages/Dashboard";
+import ManageTrip from "./pages/ManageTrip";
+import "leaflet/dist/leaflet.css";
+import { Provider } from "react-redux";
+import { store, persistor } from "./components/store/auth.store";
+import { PersistGate } from "redux-persist/integration/react";
+import "leaflet-geosearch/dist/geosearch.css";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LifeOSIntroAnimation />} />
-        <Route path="/home" element={<VisitedPlace />} />
-        <Route path="/travel" element={<TravelFeed />} />
-        <Route path="/add-journey" element={<AddJourney />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/art-zone" element={<ArtZone />} />
-        <Route path="/add-art" element={<AddArt />} />
-        <Route path="/add-visited" element={<AddVisited />} />
-        <Route path="/add-wishlist" element={<AddWishlist />} />
-      </Routes>
-    </BrowserRouter>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LifeOSIntroAnimation />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          {/* Protected Routes */}
+          <Route path="/home" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/travel" element={<ProtectedRoute><VisitedPlace /></ProtectedRoute>} />
+          <Route path="/travelfeed" element={<ProtectedRoute><TravelFeed /></ProtectedRoute>} />
+          <Route path="/add-journey" element={<ProtectedRoute><AddJourney /></ProtectedRoute>} />
+          <Route path="/art-zone" element={<ProtectedRoute><ArtZone /></ProtectedRoute>} />
+          <Route path="/add-art" element={<ProtectedRoute><AddArt /></ProtectedRoute>} />
+          <Route path="/manage-trip" element={<ProtectedRoute><ManageTrip /></ProtectedRoute>} />
+        </Routes>
+      </BrowserRouter>
+      </PersistGate>
+    </Provider>
   );
 }
 

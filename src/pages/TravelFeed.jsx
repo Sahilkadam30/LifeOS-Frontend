@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 import FloatingButton from "../components/FloatingButton";
-
+import { useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
@@ -14,8 +14,11 @@ export default function TravelFeed() {
   const [showHeart, setShowHeart] = useState({});
   const [currentIndex, setCurrentIndex] = useState({});
   const [commentText, setCommentText] = useState({});
-  const [currentUser, setCurrentUser] = useState("");
+  // const [currentUser, setCurrentUser] = useState("");
   const [showComments, setShowComments] = useState({});
+
+  const token = useSelector((state) => state.auth.token);
+  const currentUser = useSelector((state) => state.auth.user);
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
@@ -33,23 +36,32 @@ export default function TravelFeed() {
   };
 
   useEffect(() => {
-    fetchPosts();
-
-    const token = localStorage.getItem("token");
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setCurrentUser(payload.sub);
+    if (!token) {
+      navigate("/login");
+      return;
     }
-  }, []);
+
+    try {
+      fetchPosts();
+
+      const payload = JSON.parse(atob(token.split(".")[1]));
+
+      setCurrentUser(payload.sub);
+    } catch (error) {
+      console.error("Invalid token:", error);
+
+      navigate("/login");
+    }
+  }, [token]);
 
   // LIKE
   const likePost = async (postId) => {
     try {
       const res = await API.post(`/travel/like/${postId}`);
 
-      setPosts(posts.map((p) =>
-        p.id === postId ? { ...p, likeCount: res.data } : p
-      ));
+      setPosts(
+        posts.map((p) => (p.id === postId ? { ...p, likeCount: res.data } : p)),
+      );
 
       setLikedPosts((prev) => ({ ...prev, [postId]: true }));
     } catch (err) {
@@ -78,11 +90,13 @@ export default function TravelFeed() {
         headers: { "Content-Type": "text/plain" },
       });
 
-      setPosts(posts.map((p) =>
-        p.id === postId
-          ? { ...p, comments: [...(p.comments || []), res.data] }
-          : p
-      ));
+      setPosts(
+        posts.map((p) =>
+          p.id === postId
+            ? { ...p, comments: [...(p.comments || []), res.data] }
+            : p,
+        ),
+      );
 
       setCommentText((prev) => ({ ...prev, [postId]: "" }));
     } catch (err) {
@@ -99,7 +113,7 @@ export default function TravelFeed() {
   const confirmDelete = async () => {
     try {
       await API.delete(`/travel/post/${selectedPostId}`);
-      setPosts(prev => prev.filter(p => p.id !== selectedPostId));
+      setPosts((prev) => prev.filter((p) => p.id !== selectedPostId));
       setShowConfirm(false);
     } catch (err) {
       console.error(err);
@@ -118,7 +132,6 @@ export default function TravelFeed() {
 
   return (
     <div className="container-fluid mt-3 px-4">
-
       {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 style={{ color: "#C9996B" }}>Travel Track</h4>
@@ -146,7 +159,6 @@ export default function TravelFeed() {
         {posts.map((post) => (
           <div key={post.id}>
             <div className="card post-card">
-
               {/* IMAGE */}
               <div
                 className="image-container"
@@ -183,7 +195,6 @@ export default function TravelFeed() {
 
               {/* CONTENT */}
               <div className="card-body">
-
                 <h6>{post.caption}</h6>
 
                 <p className="text-muted small">
@@ -192,49 +203,46 @@ export default function TravelFeed() {
 
                 {/* ACTION BAR */}
                 <div className="action-bar">
+                  {/* LIKE */}
+                  <span
+                    className="action-btn"
+                    onClick={() => likePost(post.id)}
+                  >
+                    <span className="icon">❤️</span>
+                    <span className="label">Like</span>
+                    <span className="count">{post.likeCount || 0}</span>
+                  </span>
 
-  {/* LIKE */}
-  <span
-    className="action-btn"
-    onClick={() => likePost(post.id)}
-  >
-    <span className="icon">❤️</span>
-    <span className="label">Like</span>
-    <span className="count">{post.likeCount || 0}</span>
-  </span>
+                  {/* COMMENT */}
+                  <span
+                    className="action-btn"
+                    onClick={() =>
+                      setShowComments((prev) => ({
+                        ...prev,
+                        [post.id]: !prev[post.id],
+                      }))
+                    }
+                  >
+                    <span className="icon">💬</span>
+                    <span className="label">Comment</span>
+                    <span className="count">{post.comments?.length || 0}</span>
+                  </span>
 
-  {/* COMMENT */}
-  <span
-    className="action-btn"
-    onClick={() =>
-      setShowComments((prev) => ({
-        ...prev,
-        [post.id]: !prev[post.id],
-      }))
-    }
-  >
-    <span className="icon">💬</span>
-    <span className="label">Comment</span>
-    <span className="count">{post.comments?.length || 0}</span>
-  </span>
-
-  {/* DELETE */}
-  {post.user?.username === currentUser && (
-    <span
-      className="action-btn delete-btn"
-      onClick={() => openDeletePopup(post.id)}
-    >
-      <span className="icon">🗑</span>
-      <span className="label">Delete</span>
-    </span>
-  )}
-
-</div>
+                  {/* DELETE */}
+                  {post.user?.username === currentUser && (
+                    <span
+                      className="action-btn delete-btn"
+                      onClick={() => openDeletePopup(post.id)}
+                    >
+                      <span className="icon">🗑</span>
+                      <span className="label">Delete</span>
+                    </span>
+                  )}
+                </div>
 
                 {/* COMMENTS */}
                 {showComments[post.id] && (
                   <div className="comment-section">
-
                     {post.comments?.map((c) => (
                       <p key={c.id} className="mb-1">
                         <b>{c.user?.username}</b>: {c.text}
@@ -262,10 +270,8 @@ export default function TravelFeed() {
                         Post
                       </button>
                     </div>
-
                   </div>
                 )}
-
               </div>
             </div>
           </div>
@@ -280,21 +286,21 @@ export default function TravelFeed() {
             <p>You want to delete this post</p>
 
             <div className="d-flex justify-content-between mt-3">
-  <button
-    className="btn"
-    style={{ backgroundColor: "#C9996B", color: "white" }}
-    onClick={confirmDelete}
-  >
-    Yes, Delete
-  </button>
+              <button
+                className="btn"
+                style={{ backgroundColor: "#C9996B", color: "white" }}
+                onClick={confirmDelete}
+              >
+                Yes, Delete
+              </button>
 
-  <button
-    className="btn btn-outline-secondary"
-    onClick={cancelDelete}
-  >
-    Cancel
-  </button>
-</div>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
