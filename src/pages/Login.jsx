@@ -25,13 +25,17 @@ const Login = () => {
       const res = await API.post("/auth/login", data);
 
       if (res.data.success) {
-        const token = res.data.data;
-        dispatch(login({ token, user: null }));
+        const { token, user } = res.data.data;
+
+        console.log("res.data.data", res.data.data);
+
+        dispatch(login({ token, user: user }));
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", user.id);
         navigate("/home");
       } else {
         setErrorMsg(res.data.message);
       }
-
     } catch (error) {
       setErrorMsg("Server error. Try again later.");
     } finally {
@@ -56,9 +60,7 @@ const Login = () => {
           type="password"
           placeholder="Password"
           disabled={loading}
-          onChange={(e) =>
-            setData({ ...data, password: e.target.value })
-          }
+          onChange={(e) => setData({ ...data, password: e.target.value })}
         />
 
         {errorMsg && <p className="error-text">{errorMsg}</p>}

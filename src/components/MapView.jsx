@@ -58,10 +58,15 @@ export default function MapView({
   return (
     <div className="map-wrapper">
       <MapContainer
-        center={[20.5937, 78.9629]}
-        zoom={5}
-        scrollWheelZoom={true}
-      >
+          center={[20.5937, 78.9629]}
+          zoom={5}
+          scrollWheelZoom={true}
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: "20px",
+          }}
+        >
         {/* ✅ IMPORTANT */}
         <ResizeMap />
 

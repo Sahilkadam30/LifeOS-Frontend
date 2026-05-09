@@ -1,48 +1,50 @@
-// import axios from "axios";
-
-// const API = axios.create({
-//   baseURL: "http://localhost:4550/api",
-// });
-
-
-// // Helper to get headers with token
-// export const getAuthHeaders = () => {
-//   const token = localStorage.getItem("token");
-//   return token ? { Authorization: `Bearer ${token}` } : {};
-// };
-
-// export default API;
-
 import axios from "axios";
 import { store } from "./components/store/auth.store";
+import { logout } from "./components/store/slice/auth.slice";
 
 const API = axios.create({
   baseURL: "http://localhost:4550/api",
 });
 
-// ✅ Attach token
+// ✅ Attach token + userId
 API.interceptors.request.use((config) => {
-  const state = store.getState();
-  const token = state.auth.token;
 
+  const state = store.getState();
+
+  const token =
+    state.auth.token || localStorage.getItem("token");
+
+  const userId =
+    localStorage.getItem("userId");
+
+  // ✅ TOKEN
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  // ✅ USER ID
+  if (userId) {
+    config.headers.userId = userId;
   }
 
   return config;
 });
 
-import { logout } from "./components/store/slice/auth.slice";
-
 // ✅ Handle expired token
 API.interceptors.response.use(
   (res) => res,
   (err) => {
+
     if (err.response && err.response.status === 401) {
-      // 🔥 Token expired or invalid
+
       store.dispatch(logout());
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+
       window.location.href = "/login";
     }
+
     return Promise.reject(err);
   }
 );

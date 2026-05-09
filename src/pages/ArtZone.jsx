@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import API from "../api";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { logout } from "../components/store/slice/auth.slice";
 
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
@@ -14,6 +17,9 @@ export default function ArtZone() {
   const [commentText, setCommentText] = useState({});
   const [comments, setComments] = useState({});
   const [likedAnimation, setLikedAnimation] = useState({});
+
+  const token = useSelector((state) => state.auth.token);
+const currentUser = useSelector((state) => state.auth.user);
 
   const navigate = useNavigate();
 
@@ -75,24 +81,29 @@ export default function ArtZone() {
   };
 
   // ================= INIT =================
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+useEffect(() => {
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+  if (!token) {
+    navigate("/login");
+    return;
+  }
 
-    try {
-      const decoded = jwtDecode(token);
-      setUser(decoded.sub);
-      fetchPosts();
-    } catch (error) {
-      console.error("Invalid token:", error);
-      localStorage.removeItem("token");
-      navigate("/login");
-    }
-  }, []);
+  try {
+
+    const decoded = jwtDecode(token);
+
+    setUser(currentUser?.username || decoded.sub);
+
+    fetchPosts();
+
+  } catch (error) {
+
+    console.error("Invalid token:", error);
+
+    navigate("/login");
+  }
+
+}, [token]);
 
   // ================= ADD COMMENT =================
   const addComment = (postId) => {
