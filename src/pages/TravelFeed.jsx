@@ -14,7 +14,6 @@ export default function TravelFeed() {
   const [showHeart, setShowHeart] = useState({});
   const [currentIndex, setCurrentIndex] = useState({});
   const [commentText, setCommentText] = useState({});
-  // const [currentUser, setCurrentUser] = useState("");
   const [showComments, setShowComments] = useState({});
 
   const token = useSelector((state) => state.auth.token);

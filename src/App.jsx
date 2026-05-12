@@ -15,6 +15,8 @@ import { Provider } from "react-redux";
 import { store, persistor } from "./components/store/auth.store";
 import { PersistGate } from "redux-persist/integration/react";
 import "leaflet-geosearch/dist/geosearch.css";
+import TravelSections from "./pages/TravelSections";
+import WritingsPage from "./pages/WritingsPage"
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -36,6 +38,8 @@ function App() {
           <Route path="/art-zone" element={<ProtectedRoute><ArtZone /></ProtectedRoute>} />
           <Route path="/add-art" element={<ProtectedRoute><AddArt /></ProtectedRoute>} />
           <Route path="/manage-trip" element={<ProtectedRoute><ManageTrip /></ProtectedRoute>} />
+          <Route path="/TravelSections" element={<ProtectedRoute><TravelSections /></ProtectedRoute>} />
+          <Route path="/WritingsPage" element={<ProtectedRoute><WritingsPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
       </PersistGate>
