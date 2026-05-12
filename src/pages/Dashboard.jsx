@@ -47,13 +47,13 @@ export default function Dashboard() {
           <p>{data.gym}</p>
         </div>
 
-        <div className="card" onClick={() => navigate("/ai")}>
-          <h2>🤖 AI</h2>
+        <div className="card" onClick={() => navigate("/TravelSections")}>
+          <h2>travel sections</h2>
           <p>{data.ai}</p>
         </div>
 
-        <div className="card" onClick={() => navigate("/story")}>
-          <h2>📖 Story</h2>
+        <div className="card" onClick={() => navigate("/WritingsPage")}>
+          <h2>📖 notes</h2>
           <p>{data.story}</p>
         </div>
 
