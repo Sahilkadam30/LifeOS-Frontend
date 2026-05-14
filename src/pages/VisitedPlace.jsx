@@ -2,240 +2,322 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 import MapView from "../components/MapView";
-import "../styles/VisitedPlace.css";
-
-import {
-  FaMapMarkerAlt,
-  FaHeart,
-  FaUniversity,
-  FaGlobe,
-} from "react-icons/fa";
+import TravelSections from "../pages/TravelSections";
 
 export default function VisitedPlace() {
+
   const [visited, setVisited] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [sections, setSections] = useState([]);
+
+  // ✅ ACTIVE SIDEBAR PAGE
+  const [activePage, setActivePage] =
+    useState("dashboard");
 
   const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
+
       const v = await API.get("/visited");
       const w = await API.get("/wishlist");
 
       setVisited(v.data);
       setWishlist(w.data);
+
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this place?"
-    );
+  const loadData = async () => {
 
-    if (!confirmDelete) return;
+    await fetchData();
 
     try {
-      await API.delete(`/visited/${id}`);
-      fetchData();
+
+      const s = await API.get("/sections");
+
+      setSections(s.data);
+
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handleEdit = (trip) => {
-    navigate(`/edit-visited/${trip.id}`, {
-      state: trip,
-    });
-  };
+  loadData();
+
+}, []);
 
   return (
-    <div className="dashboard-layout">
-      {/* SIDEBAR */}
-      <div className="sidebar">
-        <div>
-          <div className="logo">TripTracker</div>
+    <div className="min-h-screen bg-[#F8F6F4] font-['Inter'] flex">
 
-          <div className="sidebar-menu">
-            <div className="sidebar-item sidebar-active">
+      {/* SIDEBAR */}
+      <div className="hidden lg:flex flex-col justify-between w-[220px] bg-white border-r border-[#ECECEC] p-5">
+
+        <div>
+
+          <h1 className="text-3xl font-['Playfair_Display'] text-[#222] mb-8">
+            Trip Journal
+          </h1>
+
+          <div className="space-y-2">
+
+            {/* DASHBOARD */}
+            <div
+              onClick={() =>
+                setActivePage("dashboard")
+              }
+              className={`px-4 py-3 rounded-2xl text-sm cursor-pointer transition-all ${
+                activePage === "dashboard"
+                  ? "bg-[#F1EEFF] text-[#6C4DFF] font-semibold"
+                  : "text-[#666] hover:bg-[#F8F6F4]"
+              }`}
+            >
               Dashboard
             </div>
 
-            <div className="sidebar-item">
-              Visited Trips
-            </div>
-
-            <div className="sidebar-item">
-              Wishlist
-            </div>
-
-            <div className="sidebar-item">
+            {/* MAP VIEW */}
+            <div
+              onClick={() =>
+                setActivePage("map")
+              }
+              className={`px-4 py-3 rounded-2xl text-sm cursor-pointer transition-all ${
+                activePage === "map"
+                  ? "bg-[#F1EEFF] text-[#6C4DFF] font-semibold"
+                  : "text-[#666] hover:bg-[#F8F6F4]"
+              }`}
+            >
               Map View
             </div>
 
-            <div className="sidebar-item">
-              Statistics
-            </div>
-
-            <div className="sidebar-item">
-              Settings
-            </div>
-          </div>
-        </div>
-
-        <div className="logout-btn">Logout</div>
-      </div>
-
-      {/* MAIN */}
-      <div className="dashboard-main">
-        <div className="dashboard-top">
-          <div className="dashboard-title">
-            Dashboard
-          </div>
-
-          <div className="top-actions">
-            <button
-              className="add-btn"
-              onClick={() =>
-                    navigate("/manage-trip")
-                  }
-            >
-              + Add New
-            </button>
-
-            <div className="profile-circle"></div>
-          </div>
-        </div>
-
-        {/* STATS */}
-        <div className="stats-grid">
-          <div className="stats-card">
-            <div className="stats-icon green">📍</div>
-
-            <div className="stats-text">
-              <p>Visited Places</p>
-              <h2>{visited.length}</h2>
-            </div>
-          </div>
-
-          <div className="stats-card">
-            <div className="stats-icon orange">❤</div>
-
-            <div className="stats-text">
-              <p>Wishlist Places</p>
-              <h2>{wishlist.length}</h2>
-            </div>
-          </div>
-
-          <div className="stats-card">
-            <div className="stats-icon black">🏛</div>
-
-            <div className="stats-text">
-              <p>Cities Explored</p>
-              <h2>
-                {
-                  new Set(
-                    visited.map((v) => v.city)
-                  ).size
-                }
-              </h2>
-            </div>
-          </div>
-
-          <div className="stats-card">
-            <div className="stats-icon beige">🌍</div>
-
-            <div className="stats-text">
-              <p>Total Trips</p>
-              <h2>
-                {visited.length + wishlist.length}
-              </h2>
-            </div>
-          </div>
-        </div>
-
-        {/* CONTENT */}
-        <div className="content-grid">
-          {/* LEFT */}
-          <div className="left-section">
             {/* VISITED */}
-            <div className="custom-card">
-              <div className="card-header">
-                <h4>Visited Trips</h4>
-              </div>
-
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Place</th>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>City</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {visited.map((v) => (
-                    <tr key={v.id}>
-                      <td>{v.placeName}</td>
-                      <td>{v.type}</td>
-                      <td>{v.visitedOn}</td>
-                      <td>{v.city}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div className="view-link">
-                View all visited trips →
-              </div>
+            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
+              Visited Trips
             </div>
 
             {/* WISHLIST */}
-            <div className="custom-card">
-              <div className="card-header">
-                <h4>Wishlist</h4>
-              </div>
-
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Place</th>
-                    <th>Date</th>
-                    <th>City</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {wishlist.map((w) => (
-                    <tr key={w.id}>
-                      <td>{w.placeName}</td>
-                      <td>{w.planDate}</td>
-                      <td>{w.city}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div className="view-link">
-                View all wishlist places →
-              </div>
+            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
+              Wishlist
             </div>
-          </div>
 
-          {/* RIGHT MAP */}
-          <div className="map-card">
-            <MapView
-              visited={visited}
-              wishlist={wishlist}
-            />
+            {/* STATS */}
+            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
+              Statistics
+            </div>
+
+            {/* SETTINGS */}
+            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
+              Settings
+            </div>
+
           </div>
         </div>
+
+        <button className="bg-[#6C4DFF] text-white py-3 rounded-2xl text-sm">
+          Logout
+        </button>
+      </div>
+
+      {/* MAIN */}
+      <div className="flex-1 px-4 md:px-6 py-6">
+
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+          <div>
+
+            <h1 className="text-3xl md:text-4xl font-['Playfair_Display'] text-[#222]">
+              {activePage === "dashboard"
+                ? "Dashboard"
+                : "Travel Map"}
+            </h1>
+
+            <p className="text-[#777] text-sm mt-1">
+              {activePage === "dashboard"
+                ? "Organize your journeys beautifully."
+                : "Explore all your travel memories on the map."}
+            </p>
+
+          </div>
+
+          <button
+            className="bg-[#6C4DFF] text-white px-5 py-3 rounded-2xl text-sm shadow-sm hover:scale-105 transition"
+            onClick={() => navigate("/manage-trip")}
+          >
+            + Add Journey
+          </button>
+
+        </div>
+
+        {/* ================= DASHBOARD ================= */}
+        {activePage === "dashboard" && (
+
+          <>
+            {/* STATS */}
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+
+              <div className="bg-[#FFF6D8] rounded-3xl p-4 shadow-sm">
+
+                <p className="text-[#777] text-sm">
+                  Visited Places
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {visited.length}
+                </h2>
+
+              </div>
+
+              <div className="bg-[#FFE7EC] rounded-3xl p-4 shadow-sm">
+
+                <p className="text-[#777] text-sm">
+                  Wishlist Places
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {wishlist.length}
+                </h2>
+
+              </div>
+
+              <div className="bg-[#DDF6E4] rounded-3xl p-4 shadow-sm">
+
+                <p className="text-[#777] text-sm">
+                  Cities Explored
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {
+                    new Set(
+                      visited.map((v) => v.city)
+                    ).size
+                  }
+                </h2>
+
+              </div>
+
+              <div className="bg-[#E4F0FF] rounded-3xl p-4 shadow-sm">
+
+                <p className="text-[#777] text-sm">
+                  Total Trips
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {visited.length + wishlist.length}
+                </h2>
+
+              </div>
+
+            </div>
+
+            {/* CONTENT */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+
+              {/* VISITED */}
+              <div className="bg-white rounded-3xl p-5 shadow-sm">
+
+                <div className="flex justify-between items-center mb-5">
+
+                  <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
+                    Visited Trips
+                  </h2>
+
+                  <span className="text-[#6C4DFF] text-sm cursor-pointer">
+                    View All
+                  </span>
+
+                </div>
+
+                <div className="space-y-3">
+
+                  {visited.map((v) => (
+
+                    <div
+                      key={v.id}
+                      className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
+                    >
+
+                      <div>
+
+                        <h3 className="font-semibold text-base text-[#222]">
+                          {v.placeName}
+                        </h3>
+
+                        <p className="text-[#777] text-sm mt-1">
+                          {v.type} • {v.city}
+                        </p>
+
+                      </div>
+
+                      <p className="text-xs text-[#888]">
+                        {v.visitedOn}
+                      </p>
+
+                    </div>
+
+                  ))}
+
+                </div>
+              </div>
+
+              {/* WISHLIST */}
+              <div className="bg-white rounded-3xl p-5 shadow-sm">
+
+                <div className="flex justify-between items-center mb-5">
+
+                  <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
+                    Wishlist
+                  </h2>
+
+                  <span className="text-[#6C4DFF] text-sm cursor-pointer">
+                    View All
+                  </span>
+
+                </div>
+
+                <div className="space-y-3">
+
+                  {wishlist.map((w) => (
+
+                    <div
+                      key={w.id}
+                      className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
+                    >
+
+                      <div>
+
+                        <h3 className="font-semibold text-base text-[#222]">
+                          {w.placeName}
+                        </h3>
+
+                        <p className="text-[#777] text-sm mt-1">
+                          {w.city}
+                        </p>
+
+                      </div>
+
+                      <p className="text-xs text-[#888]">
+                        {w.planDate}
+                      </p>
+
+                    </div>
+
+                  ))}
+
+                </div>
+              </div>
+
+            </div>
+          </>
+        )}
+
+        {/* ================= MAP VIEW ================= */}
+        {/* RIGHT SECTION */}
+
+
       </div>
     </div>
   );
