@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import API from "../api";
 import MapView from "../components/MapView";
 import TravelSections from "../pages/TravelSections";
+import TravelSidebar from "../components/TravelSidebar";
 
 export default function VisitedPlace() {
 
@@ -10,15 +11,22 @@ export default function VisitedPlace() {
   const [wishlist, setWishlist] = useState([]);
   const [sections, setSections] = useState([]);
 
+  const location = useLocation();
+
   // ✅ ACTIVE SIDEBAR PAGE
   const [activePage, setActivePage] =
-    useState("dashboard");
+    useState(location.state?.activePage || "dashboard");
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (location.state?.activePage) {
+      setActivePage(location.state.activePage);
+    }
+  }, [location.state]);
+
   const fetchData = async () => {
     try {
-
       const v = await API.get("/visited");
       const w = await API.get("/wishlist");
 
@@ -32,94 +40,30 @@ export default function VisitedPlace() {
 
   useEffect(() => {
 
-  const loadData = async () => {
+    const loadData = async () => {
 
-    await fetchData();
+      await fetchData();
 
-    try {
+      try {
 
-      const s = await API.get("/sections");
+        const s = await API.get("/sections");
 
-      setSections(s.data);
+        setSections(s.data);
 
-    } catch (err) {
-      console.log(err);
-    }
-  };
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-  loadData();
+    loadData();
 
-}, []);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8F6F4] font-['Inter'] flex">
 
       {/* SIDEBAR */}
-      <div className="hidden lg:flex flex-col justify-between w-[220px] bg-white border-r border-[#ECECEC] p-5">
-
-        <div>
-
-          <h1 className="text-3xl font-['Playfair_Display'] text-[#222] mb-8">
-            Trip Journal
-          </h1>
-
-          <div className="space-y-2">
-
-            {/* DASHBOARD */}
-            <div
-              onClick={() =>
-                setActivePage("dashboard")
-              }
-              className={`px-4 py-3 rounded-2xl text-sm cursor-pointer transition-all ${
-                activePage === "dashboard"
-                  ? "bg-[#F1EEFF] text-[#6C4DFF] font-semibold"
-                  : "text-[#666] hover:bg-[#F8F6F4]"
-              }`}
-            >
-              Dashboard
-            </div>
-
-            {/* MAP VIEW */}
-            <div
-              onClick={() =>
-                setActivePage("map")
-              }
-              className={`px-4 py-3 rounded-2xl text-sm cursor-pointer transition-all ${
-                activePage === "map"
-                  ? "bg-[#F1EEFF] text-[#6C4DFF] font-semibold"
-                  : "text-[#666] hover:bg-[#F8F6F4]"
-              }`}
-            >
-              Map View
-            </div>
-
-            {/* VISITED */}
-            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
-              Visited Trips
-            </div>
-
-            {/* WISHLIST */}
-            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
-              Wishlist
-            </div>
-
-            {/* STATS */}
-            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
-              Statistics
-            </div>
-
-            {/* SETTINGS */}
-            <div className="px-4 py-3 rounded-2xl text-sm text-[#666] hover:bg-[#F8F6F4] cursor-pointer">
-              Settings
-            </div>
-
-          </div>
-        </div>
-
-        <button className="bg-[#6C4DFF] text-white py-3 rounded-2xl text-sm">
-          Logout
-        </button>
-      </div>
+      <TravelSidebar activePage={activePage} setActivePage={setActivePage} />
 
       {/* MAIN */}
       <div className="flex-1 px-4 md:px-6 py-6">
@@ -153,7 +97,7 @@ export default function VisitedPlace() {
         </div>
 
         {/* ================= DASHBOARD ================= */}
-        {activePage === "dashboard" && (
+        {activePage === "dashboard" ? (
 
           <>
             {/* STATS */}
@@ -312,11 +256,12 @@ export default function VisitedPlace() {
 
             </div>
           </>
-        )}
-
-        {/* ================= MAP VIEW ================= */}
-        {/* RIGHT SECTION */}
-
+        ) : (
+          <>
+            {/* ================= MAP VIEW ================= */}
+            {/* RIGHT SECTION */}
+            <MapView />
+          </>)}
 
       </div>
     </div>

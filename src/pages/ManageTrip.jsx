@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../api";
 import MapView from "../components/MapView";
 import { useNavigate } from "react-router-dom";
+import TravelSidebar from "../components/TravelSidebar";
 
 import {
   MapContainer,
@@ -239,7 +240,9 @@ export default function ManageTrip() {
     };
 
   return (
-    <div className="min-h-screen bg-[#F8F6F4] px-5 md:px-8 py-6 font-['Inter']">
+    <div className="min-h-screen bg-[#F8F6F4] font-['Inter'] flex">
+      <TravelSidebar />
+      <div className="flex-1 px-5 md:px-8 py-6">
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -740,6 +743,7 @@ export default function ManageTrip() {
     </div>
   </div>
 )}
+      </div>
     </div>
   );
 }

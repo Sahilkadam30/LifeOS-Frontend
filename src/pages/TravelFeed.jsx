@@ -17,7 +17,8 @@ export default function TravelFeed() {
   const [showComments, setShowComments] = useState({});
 
   const token = useSelector((state) => state.auth.token);
-  const currentUser = useSelector((state) => state.auth.user);
+  // const currentUser = useSelector((state) => state.auth.user);
+  const [currentUser, setCurrentUser] = useState("");
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
