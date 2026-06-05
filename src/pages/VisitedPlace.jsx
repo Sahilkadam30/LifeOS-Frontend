@@ -1,21 +1,29 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import API from "../api";
 import MapView from "../components/MapView";
-import "../styles/VisitedPlace.css";
-
-import {
-  FaMapMarkerAlt,
-  FaHeart,
-  FaUniversity,
-  FaGlobe,
-} from "react-icons/fa";
+import TravelSections from "../pages/TravelSections";
+import TravelSidebar from "../components/TravelSidebar";
 
 export default function VisitedPlace() {
+
   const [visited, setVisited] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [sections, setSections] = useState([]);
+
+  const location = useLocation();
+
+  // ✅ ACTIVE SIDEBAR PAGE
+  const [activePage, setActivePage] =
+    useState(location.state?.activePage || "dashboard");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.activePage) {
+      setActivePage(location.state.activePage);
+    }
+  }, [location.state]);
 
   const fetchData = async () => {
     try {
@@ -24,218 +32,241 @@ export default function VisitedPlace() {
 
       setVisited(v.data);
       setWishlist(w.data);
+
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
-    fetchData();
+
+    const loadData = async () => {
+
+      await fetchData();
+
+      try {
+
+        const s = await API.get("/sections");
+
+        setSections(s.data);
+
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    loadData();
+
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this place?"
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-      await API.delete(`/visited/${id}`);
-      fetchData();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleEdit = (trip) => {
-    navigate(`/edit-visited/${trip.id}`, {
-      state: trip,
-    });
-  };
-
   return (
-    <div className="dashboard-layout">
+    <div className="min-h-screen bg-[#F8F6F4] font-['Inter'] flex">
+
       {/* SIDEBAR */}
-      <div className="sidebar">
-        <div>
-          <div className="logo">TripTracker</div>
-
-          <div className="sidebar-menu">
-            <div className="sidebar-item sidebar-active">
-              Dashboard
-            </div>
-
-            <div className="sidebar-item">
-              Visited Trips
-            </div>
-
-            <div className="sidebar-item">
-              Wishlist
-            </div>
-
-            <div className="sidebar-item">
-              Map View
-            </div>
-
-            <div className="sidebar-item">
-              Statistics
-            </div>
-
-            <div className="sidebar-item">
-              Settings
-            </div>
-          </div>
-        </div>
-
-        <div className="logout-btn">Logout</div>
-      </div>
+      <TravelSidebar activePage={activePage} setActivePage={setActivePage} />
 
       {/* MAIN */}
-      <div className="dashboard-main">
-        <div className="dashboard-top">
-          <div className="dashboard-title">
-            Dashboard
+      <div className="flex-1 px-4 md:px-6 py-6">
+
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+          <div>
+
+            <h1 className="text-3xl md:text-4xl font-['Playfair_Display'] text-[#222]">
+              {activePage === "dashboard"
+                ? "Dashboard"
+                : "Travel Map"}
+            </h1>
+
+            <p className="text-[#777] text-sm mt-1">
+              {activePage === "dashboard"
+                ? "Organize your journeys beautifully."
+                : "Explore all your travel memories on the map."}
+            </p>
+
           </div>
 
-          <div className="top-actions">
-            <button
-              className="add-btn"
-              onClick={() =>
-                    navigate("/manage-trip")
+          <button
+            className="bg-[#6C4DFF] text-white px-5 py-3 rounded-2xl text-sm shadow-sm hover:scale-105 transition"
+            onClick={() => navigate("/manage-trip")}
+          >
+            + Add Journey
+          </button>
+
+        </div>
+
+        {/* ================= DASHBOARD ================= */}
+        {activePage === "dashboard" ? (
+
+          <>
+            {/* STATS */}
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+
+              <div className="bg-[#FFF6D8] rounded-3xl p-4 shadow-sm">
+
+                <p className="text-[#777] text-sm">
+                  Visited Places
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {visited.length}
+                </h2>
+
+              </div>
+
+              <div className="bg-[#FFE7EC] rounded-3xl p-4 shadow-sm">
+
+                <p className="text-[#777] text-sm">
+                  Wishlist Places
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {wishlist.length}
+                </h2>
+
+              </div>
+
+              <div className="bg-[#DDF6E4] rounded-3xl p-4 shadow-sm">
+
+                <p className="text-[#777] text-sm">
+                  Cities Explored
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {
+                    new Set(
+                      visited.map((v) => v.city)
+                    ).size
                   }
-            >
-              + Add New
-            </button>
+                </h2>
 
-            <div className="profile-circle"></div>
-          </div>
-        </div>
-
-        {/* STATS */}
-        <div className="stats-grid">
-          <div className="stats-card">
-            <div className="stats-icon green">📍</div>
-
-            <div className="stats-text">
-              <p>Visited Places</p>
-              <h2>{visited.length}</h2>
-            </div>
-          </div>
-
-          <div className="stats-card">
-            <div className="stats-icon orange">❤</div>
-
-            <div className="stats-text">
-              <p>Wishlist Places</p>
-              <h2>{wishlist.length}</h2>
-            </div>
-          </div>
-
-          <div className="stats-card">
-            <div className="stats-icon black">🏛</div>
-
-            <div className="stats-text">
-              <p>Cities Explored</p>
-              <h2>
-                {
-                  new Set(
-                    visited.map((v) => v.city)
-                  ).size
-                }
-              </h2>
-            </div>
-          </div>
-
-          <div className="stats-card">
-            <div className="stats-icon beige">🌍</div>
-
-            <div className="stats-text">
-              <p>Total Trips</p>
-              <h2>
-                {visited.length + wishlist.length}
-              </h2>
-            </div>
-          </div>
-        </div>
-
-        {/* CONTENT */}
-        <div className="content-grid">
-          {/* LEFT */}
-          <div className="left-section">
-            {/* VISITED */}
-            <div className="custom-card">
-              <div className="card-header">
-                <h4>Visited Trips</h4>
               </div>
 
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Place</th>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>City</th>
-                  </tr>
-                </thead>
+              <div className="bg-[#E4F0FF] rounded-3xl p-4 shadow-sm">
 
-                <tbody>
+                <p className="text-[#777] text-sm">
+                  Total Trips
+                </p>
+
+                <h2 className="text-2xl font-semibold mt-2">
+                  {visited.length + wishlist.length}
+                </h2>
+
+              </div>
+
+            </div>
+
+            {/* CONTENT */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+
+              {/* VISITED */}
+              <div className="bg-white rounded-3xl p-5 shadow-sm">
+
+                <div className="flex justify-between items-center mb-5">
+
+                  <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
+                    Visited Trips
+                  </h2>
+
+                  <span className="text-[#6C4DFF] text-sm cursor-pointer">
+                    View All
+                  </span>
+
+                </div>
+
+                <div className="space-y-3">
+
                   {visited.map((v) => (
-                    <tr key={v.id}>
-                      <td>{v.placeName}</td>
-                      <td>{v.type}</td>
-                      <td>{v.visitedOn}</td>
-                      <td>{v.city}</td>
-                    </tr>
+
+                    <div
+                      key={v.id}
+                      className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
+                    >
+
+                      <div>
+
+                        <h3 className="font-semibold text-base text-[#222]">
+                          {v.placeName}
+                        </h3>
+
+                        <p className="text-[#777] text-sm mt-1">
+                          {v.type} • {v.city}
+                        </p>
+
+                      </div>
+
+                      <p className="text-xs text-[#888]">
+                        {v.visitedOn}
+                      </p>
+
+                    </div>
+
                   ))}
-                </tbody>
-              </table>
 
-              <div className="view-link">
-                View all visited trips →
-              </div>
-            </div>
-
-            {/* WISHLIST */}
-            <div className="custom-card">
-              <div className="card-header">
-                <h4>Wishlist</h4>
+                </div>
               </div>
 
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Place</th>
-                    <th>Date</th>
-                    <th>City</th>
-                  </tr>
-                </thead>
+              {/* WISHLIST */}
+              <div className="bg-white rounded-3xl p-5 shadow-sm">
 
-                <tbody>
+                <div className="flex justify-between items-center mb-5">
+
+                  <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
+                    Wishlist
+                  </h2>
+
+                  <span className="text-[#6C4DFF] text-sm cursor-pointer">
+                    View All
+                  </span>
+
+                </div>
+
+                <div className="space-y-3">
+
                   {wishlist.map((w) => (
-                    <tr key={w.id}>
-                      <td>{w.placeName}</td>
-                      <td>{w.planDate}</td>
-                      <td>{w.city}</td>
-                    </tr>
+
+                    <div
+                      key={w.id}
+                      className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
+                    >
+
+                      <div>
+
+                        <h3 className="font-semibold text-base text-[#222]">
+                          {w.placeName}
+                        </h3>
+
+                        <p className="text-[#777] text-sm mt-1">
+                          {w.city}
+                        </p>
+
+                      </div>
+
+                      <p className="text-xs text-[#888]">
+                        {w.planDate}
+                      </p>
+
+                    </div>
+
                   ))}
-                </tbody>
-              </table>
 
-              <div className="view-link">
-                View all wishlist places →
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* RIGHT MAP */}
-          <div className="map-card">
+            </div>
+          </>
+        ) : (
+          <>
+            {/* ================= MAP VIEW ================= */}
+            {/* RIGHT SECTION */}
             <MapView
-              visited={visited}
-              wishlist={wishlist}
-            />
-          </div>
-        </div>
+                visited={visited}
+                wishlist={wishlist}
+                sections={sections}
+              />
+          </>)}
+
       </div>
     </div>
   );

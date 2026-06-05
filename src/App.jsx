@@ -19,29 +19,31 @@ import TravelSections from "./pages/TravelSections";
 import WritingsPage from "./pages/WritingsPage"
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import TravelSidebar from "./components/TravelSidebar";
 
 function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LifeOSIntroAnimation />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Protected Routes */}
-          <Route path="/home" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/travel" element={<ProtectedRoute><VisitedPlace /></ProtectedRoute>} />
-          <Route path="/travelfeed" element={<ProtectedRoute><TravelFeed /></ProtectedRoute>} />
-          <Route path="/add-journey" element={<ProtectedRoute><AddJourney /></ProtectedRoute>} />
-          <Route path="/art-zone" element={<ProtectedRoute><ArtZone /></ProtectedRoute>} />
-          <Route path="/add-art" element={<ProtectedRoute><AddArt /></ProtectedRoute>} />
-          <Route path="/manage-trip" element={<ProtectedRoute><ManageTrip /></ProtectedRoute>} />
-          <Route path="/TravelSections" element={<ProtectedRoute><TravelSections /></ProtectedRoute>} />
-          <Route path="/WritingsPage" element={<ProtectedRoute><WritingsPage /></ProtectedRoute>} />
-        </Routes>
-      </BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LifeOSIntroAnimation />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            {/* Protected Routes */}
+            <Route path="/home" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/travel" element={<ProtectedRoute><VisitedPlace /></ProtectedRoute>} />
+
+            <Route path="/travelfeed" element={<ProtectedRoute><TravelFeed /></ProtectedRoute>} />
+            <Route path="/add-journey" element={<ProtectedRoute><AddJourney /></ProtectedRoute>} />
+            <Route path="/art-zone" element={<ProtectedRoute><ArtZone /></ProtectedRoute>} />
+            <Route path="/add-art" element={<ProtectedRoute><AddArt /></ProtectedRoute>} />
+            <Route path="/manage-trip" element={<ProtectedRoute><ManageTrip /></ProtectedRoute>} />
+            <Route path="/TravelSections" element={<ProtectedRoute><TravelSections /></ProtectedRoute>} />
+            <Route path="/WritingsPage" element={<ProtectedRoute><WritingsPage /></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
       </PersistGate>
     </Provider>
   );

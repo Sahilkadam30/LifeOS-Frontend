@@ -3,13 +3,19 @@ import API from "../api";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { logout } from "../components/store/slice/auth.slice";
 
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
 let stompClient = null;
+
+const pastelColors = [
+  "bg-[#FFF6D8]", // pastel yellow
+  "bg-[#DDF6E4]", // mint green
+  "bg-[#EEE6FF]", // lavender
+  "bg-[#E4F0FF]", // soft blue
+  "bg-[#FFE7EC]", // blush pink
+];
 
 export default function ArtZone() {
   const [posts, setPosts] = useState([]);
@@ -19,21 +25,20 @@ export default function ArtZone() {
   const [likedAnimation, setLikedAnimation] = useState({});
 
   const token = useSelector((state) => state.auth.token);
-const currentUser = useSelector((state) => state.auth.user);
+  const currentUser = useSelector((state) => state.auth.user);
 
   const navigate = useNavigate();
 
   // ================= FETCH POSTS =================
   const fetchPosts = async () => {
     try {
-      const res = await API.get("/art/posts"); // ✅ FIXED
+      const res = await API.get("/art/posts");
 
       setPosts(res.data);
 
-      res.data.forEach(post => fetchComments(post.id));
+      res.data.forEach((post) => fetchComments(post.id));
 
       connectWebSocket(res.data);
-
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     }
@@ -42,9 +47,9 @@ const currentUser = useSelector((state) => state.auth.user);
   // ================= FETCH COMMENTS =================
   const fetchComments = async (postId) => {
     try {
-      const res = await API.get(`/art/comments/${postId}`); // ✅ FIXED
+      const res = await API.get(`/art/comments/${postId}`);
 
-      setComments(prev => ({
+      setComments((prev) => ({
         ...prev,
         [postId]: res.data,
       }));
@@ -65,11 +70,11 @@ const currentUser = useSelector((state) => state.auth.user);
     stompClient.onConnect = () => {
       console.log("✅ WebSocket Connected");
 
-      postsList.forEach(post => {
+      postsList.forEach((post) => {
         stompClient.subscribe(`/topic/comments/${post.id}`, (msg) => {
           const newComment = JSON.parse(msg.body);
 
-          setComments(prev => ({
+          setComments((prev) => ({
             ...prev,
             [post.id]: [...(prev[post.id] || []), newComment],
           }));
@@ -81,53 +86,58 @@ const currentUser = useSelector((state) => state.auth.user);
   };
 
   // ================= INIT =================
-useEffect(() => {
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-  if (!token) {
-    navigate("/login");
-    return;
-  }
+    try {
+      const decoded = jwtDecode(token);
 
-  try {
+      setUser(currentUser?.username || decoded.sub);
 
-    const decoded = jwtDecode(token);
+      fetchPosts();
+    } catch (error) {
+      console.error("Invalid token:", error);
 
-    setUser(currentUser?.username || decoded.sub);
-
-    fetchPosts();
-
-  } catch (error) {
-
-    console.error("Invalid token:", error);
-
-    navigate("/login");
-  }
-
-}, [token]);
+      navigate("/login");
+    }
+  }, [token]);
 
   // ================= ADD COMMENT =================
   const addComment = (postId) => {
     if (!stompClient || !stompClient.connected) return;
 
     const text = commentText[postId];
+
     if (!text) return;
 
     stompClient.publish({
       destination: "/app/comment",
-      body: JSON.stringify({ postId, text, username: user }),
+      body: JSON.stringify({
+        postId,
+        text,
+        username: user,
+      }),
     });
 
-    setCommentText(prev => ({ ...prev, [postId]: "" }));
+    setCommentText((prev) => ({
+      ...prev,
+      [postId]: "",
+    }));
   };
 
   // ================= LIKE =================
   const likePost = async (id) => {
     try {
-      const res = await API.post(`/art/like/${id}`); // ✅ FIXED
+      const res = await API.post(`/art/like/${id}`);
 
-      setPosts(posts.map(p =>
-        p.id === id ? { ...p, likes: res.data } : p
-      ));
+      setPosts(
+        posts.map((p) =>
+          p.id === id ? { ...p, likes: res.data } : p
+        )
+      );
     } catch (err) {
       console.error(err);
     }
@@ -137,19 +147,25 @@ useEffect(() => {
   const handleDoubleTap = async (id) => {
     await likePost(id);
 
-    setLikedAnimation(prev => ({ ...prev, [id]: true }));
+    setLikedAnimation((prev) => ({
+      ...prev,
+      [id]: true,
+    }));
 
     setTimeout(() => {
-      setLikedAnimation(prev => ({ ...prev, [id]: false }));
+      setLikedAnimation((prev) => ({
+        ...prev,
+        [id]: false,
+      }));
     }, 600);
   };
 
   // ================= DELETE =================
   const deletePost = async (id) => {
     try {
-      await API.delete(`/art/post/${id}`); // ✅ FIXED
+      await API.delete(`/art/post/${id}`);
 
-      setPosts(posts.filter(p => p.id !== id));
+      setPosts(posts.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);
     }
@@ -163,102 +179,146 @@ useEffect(() => {
 
   // ================= UI =================
   return (
-    <div className="min-h-screen bg-[#C9996B] text-black p-5">
+    <div className="min-h-screen bg-[#F8F6F4] px-6 md:px-12 py-10 font-['Inter'] text-[#1F1F1F]">
 
-      <div className="flex justify-between items-center mb-5">
-        <h1 className="text-3xl font-bold">{user}'s Art Zone</h1>
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-12">
 
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg"
-        >
-          Logout
-        </button>
+        <div>
+          <h1 className="text-5xl font-semibold font-['Playfair_Display'] text-[#2B2B2B]">
+            Art Journal
+          </h1>
+
+          <p className="text-[#777777] mt-2 text-lg">
+            A calm creative space for your visual stories.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="bg-white px-5 py-3 rounded-2xl shadow-sm border border-[#ECECEC]">
+            <p className="text-sm text-[#777]">Logged in as</p>
+            <p className="font-semibold">{user}</p>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="bg-[#6C4DFF] hover:scale-105 transition-all duration-300 text-white px-6 py-3 rounded-2xl shadow-md"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* POSTS GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
 
-        {posts.map(post => (
-          <div key={post.id} className="bg-white p-4 rounded-xl shadow">
+        {posts.map((post, index) => (
+          <div
+            key={post.id}
+            className={`${
+              pastelColors[index % pastelColors.length]
+            } rounded-[32px] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1`}
+          >
 
+            {/* IMAGE */}
             <div
-              className="relative"
+              className="relative overflow-hidden rounded-[24px]"
               onDoubleClick={() => handleDoubleTap(post.id)}
             >
               <img
                 src={`data:image/jpeg;base64,${post.image}`}
-                className="rounded-lg w-full"
                 alt={post.caption}
+                className="w-full h-[350px] object-cover rounded-[24px]"
               />
 
               {likedAnimation[post.id] && (
-                <div className="absolute inset-0 flex items-center justify-center text-6xl animate-ping">
+                <div className="absolute inset-0 flex items-center justify-center text-7xl animate-ping">
                   ❤️
                 </div>
               )}
 
-              <span className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                {new Date(post.createdAt).toLocaleString()}
-              </span>
-            </div>
-
-            <p className="mt-2 font-medium">{post.caption}</p>
-
-            <div className="flex justify-between mt-2">
-              <button
-                onClick={() => likePost(post.id)}
-                className="text-red-500 font-semibold"
-              >
-                ❤️ {post.likes}
-              </button>
-
-              {post.username === user && (
-                <button
-                  onClick={() => deletePost(post.id)}
-                  className="text-red-600 text-sm"
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-
-            <div className="mt-3">
-              {(comments[post.id] || []).map(c => (
-                <p key={c.id} className="text-sm">
-                  <b>{c.username}</b>: {c.text}
-                </p>
-              ))}
-
-              <div className="flex mt-2">
-                <input
-                  type="text"
-                  placeholder="Add comment..."
-                  value={commentText[post.id] || ""}
-                  onChange={(e) =>
-                    setCommentText({
-                      ...commentText,
-                      [post.id]: e.target.value,
-                    })
-                  }
-                  className="border p-1 flex-1 rounded-l"
-                />
-
-                <button
-                  onClick={() => addComment(post.id)}
-                  className="bg-blue-500 text-white px-3 rounded-r"
-                >
-                  Post
-                </button>
+              <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-xs text-[#555] shadow-sm">
+                {new Date(post.createdAt).toLocaleDateString()}
               </div>
             </div>
 
+            {/* CONTENT */}
+            <div className="mt-5">
+
+              <p className="text-lg leading-relaxed text-[#2D2D2D] font-medium">
+                {post.caption}
+              </p>
+
+              <div className="flex items-center justify-between mt-5">
+
+                <button
+                  onClick={() => likePost(post.id)}
+                  className="flex items-center gap-2 text-[#6C4DFF] font-semibold hover:scale-105 transition"
+                >
+                  ❤️ {post.likes}
+                </button>
+
+                {post.username === user && (
+                  <button
+                    onClick={() => deletePost(post.id)}
+                    className="text-sm text-[#888] hover:text-red-500 transition"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+
+              {/* COMMENTS */}
+              <div className="mt-6 space-y-3">
+
+                {(comments[post.id] || []).map((c) => (
+                  <div
+                    key={c.id}
+                    className="bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-3"
+                  >
+                    <p className="text-sm text-[#444]">
+                      <span className="font-semibold text-[#222]">
+                        {c.username}
+                      </span>{" "}
+                      {c.text}
+                    </p>
+                  </div>
+                ))}
+
+                {/* COMMENT INPUT */}
+                <div className="flex items-center bg-white rounded-2xl overflow-hidden shadow-sm mt-4">
+
+                  <input
+                    type="text"
+                    placeholder="Write a thoughtful comment..."
+                    value={commentText[post.id] || ""}
+                    onChange={(e) =>
+                      setCommentText({
+                        ...commentText,
+                        [post.id]: e.target.value,
+                      })
+                    }
+                    className="flex-1 px-4 py-3 bg-transparent outline-none text-sm"
+                  />
+
+                  <button
+                    onClick={() => addComment(post.id)}
+                    className="bg-[#6C4DFF] text-white px-5 py-3 hover:opacity-90 transition"
+                  >
+                    Post
+                  </button>
+                </div>
+
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
+      {/* FLOATING BUTTON */}
       <button
-        className="fixed bottom-6 right-6 bg-black text-white w-14 h-14 rounded-full text-2xl"
         onClick={() => navigate("/add-art")}
+        className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-[#6C4DFF] text-white text-3xl shadow-[0_10px_30px_rgba(108,77,255,0.35)] hover:scale-110 transition-all duration-300"
       >
         +
       </button>
