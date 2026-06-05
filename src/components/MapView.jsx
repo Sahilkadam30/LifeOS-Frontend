@@ -362,6 +362,75 @@ function LocationMarker({
   return null;
 }
 
+
+
+function MapLegend({ sections }) {
+  return (
+    <div
+      className="
+      absolute
+      bottom-5
+      right-5
+      z-[1000]
+      bg-white
+      rounded-xl
+      shadow-lg
+      border
+      p-4
+      min-w-[220px]
+    "
+    >
+      <h4 className="font-semibold text-sm mb-3">
+        Map Legend
+      </h4>
+
+      {/* Visited */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-4 h-4 rounded-full bg-green-500"></div>
+        <span className="text-sm">
+          Visited Place
+        </span>
+      </div>
+
+      {/* Wishlist */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-4 h-4 rounded-full bg-orange-500"></div>
+        <span className="text-sm">
+          Wishlist Place
+        </span>
+      </div>
+
+      {sections?.length > 0 && (
+        <>
+          <hr className="my-2" />
+
+          <p className="text-xs text-gray-500 mb-2">
+            Travel Sections
+          </p>
+
+          {sections.map((section) => (
+            <div
+              key={section.id}
+              className="flex items-center gap-2 mb-2"
+            >
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{
+                  background: section.color,
+                }}
+              ></div>
+
+              <span className="text-sm">
+                {section.title}
+              </span>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
 // ================= MAIN COMPONENT =================
 
 export default function MapView({
@@ -381,7 +450,7 @@ export default function MapView({
 
   return (
 
-    <div className="w-full h-full rounded-3xl overflow-hidden">
+    <div className="relative w-full h-full rounded-3xl overflow-hidden">
 
       <MapContainer
         center={[20.5937, 78.9629]}
@@ -650,6 +719,7 @@ export default function MapView({
         )}
 
       </MapContainer>
+      <MapLegend sections={sections} />
     </div>
   );
 }

@@ -260,7 +260,11 @@ export default function VisitedPlace() {
           <>
             {/* ================= MAP VIEW ================= */}
             {/* RIGHT SECTION */}
-            <MapView />
+            <MapView
+                visited={visited}
+                wishlist={wishlist}
+                sections={sections}
+              />
           </>)}
 
       </div>
