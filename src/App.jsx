@@ -17,6 +17,10 @@ import { PersistGate } from "redux-persist/integration/react";
 import "leaflet-geosearch/dist/geosearch.css";
 import TravelSections from "./pages/TravelSections";
 import WritingsPage from "./pages/WritingsPage"
+import GymDashboard from "./pages/gym/GymDashboard";
+import WorkoutLog from "./pages/gym/WorkoutLog";
+import FitnessGoals from "./pages/gym/FitnessGoals"
+import MealPlanPage from "./pages/gym/MealPlanPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import TravelSidebar from "./components/TravelSidebar";
@@ -42,6 +46,12 @@ function App() {
             <Route path="/manage-trip" element={<ProtectedRoute><ManageTrip /></ProtectedRoute>} />
             <Route path="/TravelSections" element={<ProtectedRoute><TravelSections /></ProtectedRoute>} />
             <Route path="/WritingsPage" element={<ProtectedRoute><WritingsPage /></ProtectedRoute>} />
+            <Route path="/gym/dashboard" element={<ProtectedRoute><GymDashboard /></ProtectedRoute>} />
+            <Route path="/gym/workouts" element={<ProtectedRoute><WorkoutLog /></ProtectedRoute>} />
+            <Route path="/gym/goals" element={<ProtectedRoute><FitnessGoals /></ProtectedRoute>} />
+            <Route path="/gym/meals" element={<ProtectedRoute><MealPlanPage /></ProtectedRoute>} />
+
+
           </Routes>
         </BrowserRouter>
       </PersistGate>

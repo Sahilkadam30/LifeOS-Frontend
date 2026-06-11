@@ -11,6 +11,10 @@ export default function VisitedPlace() {
   const [wishlist, setWishlist] = useState([]);
   const [sections, setSections] = useState([]);
 
+  const [showAllVisited, setShowAllVisited] = useState(false);
+  const [showAllWishlist, setShowAllWishlist] = useState(false);
+  const [showAllSections, setShowAllSections] = useState(false);
+
   const location = useLocation();
 
   // ✅ ACTIVE SIDEBAR PAGE
@@ -158,51 +162,52 @@ export default function VisitedPlace() {
             </div>
 
             {/* CONTENT */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
               {/* VISITED */}
               <div className="bg-white rounded-3xl p-5 shadow-sm">
 
                 <div className="flex justify-between items-center mb-5">
 
-                  <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
-                    Visited Trips
-                  </h2>
+  <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
+    Visited Trips
+  </h2>
 
-                  <span className="text-[#6C4DFF] text-sm cursor-pointer">
-                    View All
-                  </span>
+  <span
+    className="text-[#6C4DFF] text-sm cursor-pointer"
+    onClick={() =>
+      setShowAllVisited(!showAllVisited)
+    }
+  >
+    {showAllVisited
+      ? "Show Less"
+      : "View All"}
+  </span>
 
-                </div>
+</div>
 
                 <div className="space-y-3">
 
-                  {visited.map((v) => (
-
+                  {(showAllVisited ? visited : visited.slice(0, 4)).map((v) => (
                     <div
-                      key={v.id}
-                      className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
-                    >
-
-                      <div>
-
+                       key={v.id}
+                        className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
+                        >
+                  <div>
                         <h3 className="font-semibold text-base text-[#222]">
-                          {v.placeName}
+                        {v.placeName}
                         </h3>
 
-                        <p className="text-[#777] text-sm mt-1">
-                          {v.type} • {v.city}
-                        </p>
-
-                      </div>
+                      <p className="text-[#777] text-sm mt-1">
+                        {v.type} • {v.city}
+                          </p>
+                        </div>
 
                       <p className="text-xs text-[#888]">
-                        {v.visitedOn}
-                      </p>
-
-                    </div>
-
-                  ))}
+                      {v.visitedOn}
+                          </p>
+                      </div>
+                        ))}
 
                 </div>
               </div>
@@ -210,49 +215,111 @@ export default function VisitedPlace() {
               {/* WISHLIST */}
               <div className="bg-white rounded-3xl p-5 shadow-sm">
 
-                <div className="flex justify-between items-center mb-5">
-
-                  <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
-                    Wishlist
-                  </h2>
-
-                  <span className="text-[#6C4DFF] text-sm cursor-pointer">
-                    View All
-                  </span>
-
-                </div>
+                <span
+  className="text-[#6C4DFF] text-sm cursor-pointer"
+  onClick={() =>
+    setShowAllWishlist(!showAllWishlist)
+  }
+>
+  {showAllWishlist
+    ? "Show Less"
+    : "View All"}
+</span>
 
                 <div className="space-y-3">
 
-                  {wishlist.map((w) => (
+                  {(showAllWishlist
+                        ? wishlist
+                        : wishlist.slice(0, 4)
+                      ).map((w) => (
+                        <div
+                          key={w.id}
+                          className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
+                        >
+                         <div>
+                            <h3 className="font-semibold text-base text-[#222]">
+                             {w.placeName}
+                           </h3>
 
-                    <div
-                      key={w.id}
-                      className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
-                    >
+                           <p className="text-[#777] text-sm mt-1">
+                              {w.city}
+                           </p>
+                         </div>
 
-                      <div>
-
-                        <h3 className="font-semibold text-base text-[#222]">
-                          {w.placeName}
-                        </h3>
-
-                        <p className="text-[#777] text-sm mt-1">
-                          {w.city}
-                        </p>
-
-                      </div>
-
-                      <p className="text-xs text-[#888]">
-                        {w.planDate}
-                      </p>
-
-                    </div>
-
-                  ))}
+                         <p className="text-xs text-[#888]">
+                            {w.planDate}
+                          </p>
+                        </div>
+                      ))}
 
                 </div>
               </div>
+
+              <div className="bg-white rounded-3xl p-5 shadow-sm">
+
+  <div className="flex justify-between items-center mb-5">
+
+    <h2 className="text-2xl font-['Playfair_Display'] text-[#222]">
+      Sections
+    </h2>
+
+    <span
+      className="text-[#6C4DFF] text-sm cursor-pointer"
+      onClick={() =>
+        setShowAllSections(!showAllSections)
+      }
+    >
+      {showAllSections
+        ? "Show Less"
+        : "View All"}
+    </span>
+
+  </div>
+
+  <div className="space-y-3">
+
+    {(showAllSections
+      ? sections
+      : sections.slice(0, 4)
+    ).map((section) => (
+
+      <div
+        key={section.id}
+        className="bg-[#F8F6F4] rounded-2xl p-4 flex justify-between items-center"
+      >
+
+        <div className="flex items-center gap-3">
+
+          <div
+            className="w-4 h-4 rounded-full"
+            style={{
+              background:
+                section.color,
+            }}
+          />
+
+          <div>
+
+            <h3 className="font-semibold text-base text-[#222]">
+              {section.title}
+            </h3>
+
+            <p className="text-[#777] text-sm mt-1">
+              {section.places?.length || 0}
+              {" "}Places
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</div>
 
             </div>
           </>

@@ -17,7 +17,7 @@ export default function Dashboard() {
 
   const fetchDashboard = async () => {
     try {
-      const res = await API.get("/dashboard");
+      const res = await API.get("/gym/dashboard");
       setData(res.data);
     } catch (err) {
       console.log(err);
@@ -54,6 +54,11 @@ export default function Dashboard() {
 
         <div className="card" onClick={() => navigate("/WritingsPage")}>
           <h2>📖 notes</h2>
+          <p>{data.story}</p>
+        </div>
+
+        <div className="card" onClick={() => navigate("/gym/dashboard")}>
+          <h2>📖 GYM</h2>
           <p>{data.story}</p>
         </div>
 

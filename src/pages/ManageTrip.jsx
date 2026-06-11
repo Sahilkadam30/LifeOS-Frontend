@@ -56,12 +56,16 @@ export default function ManageTrip() {
   const [places, setPlaces] = useState([]);
 
   const sectionColors = [
-    "#6C4DFF",
-    "#22C55E",
-    "#F97316",
-    "#EC4899",
-    "#0EA5E9",
-    "#EAB308",
+  "#22C55E",
+  "#F97316",
+  "#EC4899",
+  "#0EA5E9",
+  "#EAB308",
+  "#EF4444", 
+  "#14B8A6", 
+  "#8B5CF6", 
+  "#84CC16", 
+  "#F43F5E",
   ];
 
   // ================= SECTION ICON =================
