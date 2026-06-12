@@ -21,6 +21,10 @@ import GymDashboard from "./pages/gym/GymDashboard";
 import WorkoutLog from "./pages/gym/WorkoutLog";
 import FitnessGoals from "./pages/gym/FitnessGoals"
 import MealPlanPage from "./pages/gym/MealPlanPage";
+import FinanceDashboard from "./pages/finance/FinanceDashboard";
+import ExpenseTrackerPage from "./pages/finance/ExpenseTrackerPage";
+import SavingsTrackerPage from "./pages/finance/SavingsTrackerPage";
+import InvestmentTrackerPage from "./pages/finance/InvestmentTrackerPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import TravelSidebar from "./components/TravelSidebar";
@@ -50,6 +54,11 @@ function App() {
             <Route path="/gym/workouts" element={<ProtectedRoute><WorkoutLog /></ProtectedRoute>} />
             <Route path="/gym/goals" element={<ProtectedRoute><FitnessGoals /></ProtectedRoute>} />
             <Route path="/gym/meals" element={<ProtectedRoute><MealPlanPage /></ProtectedRoute>} />
+            <Route path="/finance/dashboard" element={<ProtectedRoute><FinanceDashboard /></ProtectedRoute>} />
+            <Route path="/finance/expenses" element={<ProtectedRoute><ExpenseTrackerPage /></ProtectedRoute>} />
+            <Route path="/finance/savings" element={<ProtectedRoute><SavingsTrackerPage /></ProtectedRoute>} />
+            <Route path="/finance/investments" element={<ProtectedRoute><InvestmentTrackerPage /></ProtectedRoute>} />
+
 
 
           </Routes>
