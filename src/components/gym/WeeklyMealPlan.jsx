@@ -2,10 +2,10 @@ import { Apple } from "lucide-react";
 
 export default function WeeklyMealPlan({ meals }) {
   return (
-    <div className="bg-white rounded-[32px] p-6 shadow-sm border border-[#ECECEC] flex flex-col h-full">
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-2xl font-['Playfair_Display'] font-bold text-[#222] flex items-center gap-2">
-          <Apple size={22} className="text-[#059669]" />
+    <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-sm flex flex-col h-full">
+      <div className="flex items-center justify-between mb-5 border-b border-[#F1F5F9] pb-3">
+        <h2 className="text-[18px] font-bold text-[#1E293B] flex items-center gap-2">
+          <Apple size={20} className="text-[#2563EB]" />
           Weekly Meal Plan
         </h2>
       </div>
@@ -19,13 +19,13 @@ export default function WeeklyMealPlan({ meals }) {
           meals.map((meal) => (
             <div
               key={meal.id}
-              className="flex items-center justify-between bg-[#F8F6F4] hover:bg-[#F0EDEA] transition-all duration-200 rounded-2xl p-4 gap-4"
+              className="flex items-center justify-between bg-[#F8FAFC] border border-[#E2E8F0]/40 hover:bg-[#F1F5F9] transition-all duration-200 rounded-[10px] p-3.5 gap-4"
             >
-              <span className="bg-[#E6F4EA] text-[#059669] px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider shrink-0 shadow-sm shadow-emerald-50">
+              <span className="bg-[#E7F6EC] text-[#16A34A] border border-[#16A34A]/10 px-3.5 py-1.5 rounded-[8px] text-[12px] font-bold uppercase tracking-wider shrink-0 shadow-sm">
                 {meal.dayName}
               </span>
 
-              <span className="text-[#444] text-sm font-medium text-right break-words max-w-[70%]">
+              <span className="text-[#334155] text-[14px] font-medium text-right break-words max-w-[70%]">
                 {meal.mealDescription}
               </span>
             </div>

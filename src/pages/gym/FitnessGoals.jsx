@@ -3,6 +3,7 @@ import GymSidebar from "../../components/gym/GymSidebar";
 import {
   getGoals,
   createGoal,
+  updateGoal,
   deleteGoal,
   getHabits,
   createHabit,
@@ -71,6 +72,18 @@ export default function FitnessGoals() {
     }
   };
 
+  const handleToggleGoal = async (goal) => {
+    try {
+      await updateGoal(goal.id, {
+        ...goal,
+        completed: !goal.completed,
+      });
+      loadGoals();
+    } catch (err) {
+      console.error("Failed to toggle goal status:", err);
+    }
+  };
+
   const removeGoal = async (id) => {
     if (confirm("Are you sure you want to delete this goal?")) {
       try {
@@ -119,12 +132,15 @@ export default function FitnessGoals() {
     }
   };
 
-  const removeHabit = async (id) => {
-    try {
-      await deleteHabit(id);
-      loadHabits();
-    } catch (err) {
-      console.error(err);
+  const removeHabit = async (e, id) => {
+    e.stopPropagation();
+    if (confirm("Are you sure you want to delete this daily habit?")) {
+      try {
+        await deleteHabit(id);
+        loadHabits();
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -138,75 +154,74 @@ export default function FitnessGoals() {
       : Math.round((completedHabits / habits.length) * 100);
 
   return (
-    <div className="min-h-screen bg-[#F8F6F4] font-['Inter'] flex">
+    <div className="min-h-screen bg-[#F5F7FA] font-['Inter',_sans-serif] flex">
       <GymSidebar />
 
-      <div className="flex-1 px-5 md:px-8 py-6 overflow-y-auto">
-
-        {/* ── HEADER ── */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div className="flex-1 p-6 md:p-10 max-w-[1600px] mx-auto w-full overflow-y-auto">
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-['Playfair_Display'] font-bold text-[#222]">
+            <h1 className="text-[32px] font-bold text-[#1E293B] tracking-tight leading-none mb-2">
               Fitness Goals
             </h1>
-            <p className="text-[#777] text-sm mt-2">
-              Set targets, track milestones, and build daily habits.
+            <p className="text-[#64748B] text-[15px]">
+              Set physical performance targets, monitor milestones, and track habits.
             </p>
           </div>
 
-          <div className="flex gap-3 flex-wrap">
-            <div className="bg-white rounded-2xl px-4 py-2 shadow-sm border border-[#ECECEC] text-sm font-semibold text-[#059669]">
-              {activeGoals.length} Active Goal{activeGoals.length !== 1 ? "s" : ""}
-            </div>
-            <div className="bg-white rounded-2xl px-4 py-2 shadow-sm border border-[#ECECEC] text-sm font-semibold text-[#555]">
+          <div className="flex gap-2.5">
+            <span className="bg-[#E7F6EC] text-[#16A34A] border border-[#16A34A]/10 px-3.5 py-2 rounded-[10px] text-[13px] font-bold uppercase tracking-wider">
+              {activeGoals.length} Active Target{activeGoals.length !== 1 ? "s" : ""}
+            </span>
+            <span className="bg-[#EAF2FF] text-[#2563EB] border border-[#2563EB]/10 px-3.5 py-2 rounded-[10px] text-[13px] font-bold uppercase tracking-wider">
               {completedGoals.length} Completed
-            </div>
+            </span>
           </div>
         </div>
 
-        {/* ── CREATE GOAL FORM ── */}
-        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-[#ECECEC] mb-8">
-          <h2 className="text-2xl font-['Playfair_Display'] font-bold text-[#222] mb-6 flex items-center gap-2">
-            <Plus size={22} className="text-[#059669]" />
+        {/* CREATE GOAL FORM */}
+        <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-sm mb-8">
+          <h2 className="text-[20px] font-semibold text-[#1E293B] mb-5 flex items-center gap-2">
+            <Plus size={20} className="text-[#2563EB]" />
             Create New Goal
           </h2>
 
           <form onSubmit={saveGoal}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div>
-                <label className="block text-xs font-semibold text-[#666] uppercase tracking-wider mb-2">
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider block">
                   Goal Name *
                 </label>
                 <input
-                  className="w-full bg-[#F8F6F4] rounded-2xl px-5 py-4 outline-none text-base border border-transparent focus:border-[#059669] focus:bg-white transition-all duration-200"
-                  placeholder="e.g. Lose 5kg, Run 10km"
+                  className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                  placeholder="e.g. Run 10K, Bodyweight goal"
                   value={goalForm.goalName}
                   onChange={(e) => setGoalForm({ ...goalForm, goalName: e.target.value })}
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-[#666] uppercase tracking-wider mb-2">
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider block">
                   Target Value *
                 </label>
                 <input
                   type="number"
-                  className="w-full bg-[#F8F6F4] rounded-2xl px-5 py-4 outline-none text-base border border-transparent focus:border-[#059669] focus:bg-white transition-all duration-200"
-                  placeholder="e.g. 5"
+                  className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                  placeholder="e.g. 10"
                   value={goalForm.targetValue}
                   onChange={(e) => setGoalForm({ ...goalForm, targetValue: e.target.value })}
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-[#666] uppercase tracking-wider mb-2">
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider block">
                   Deadline
                 </label>
                 <input
                   type="date"
-                  className="w-full bg-[#F8F6F4] rounded-2xl px-5 py-4 outline-none text-base border border-transparent focus:border-[#059669] focus:bg-white transition-all duration-200"
+                  className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
                   value={goalForm.deadline}
                   onChange={(e) => setGoalForm({ ...goalForm, deadline: e.target.value })}
                 />
@@ -216,7 +231,7 @@ export default function FitnessGoals() {
             <div className="mt-5">
               <button
                 type="submit"
-                className="bg-[#059669] hover:bg-[#047857] text-white px-8 py-4 rounded-2xl text-base shadow-sm font-semibold transition hover:scale-[1.01] duration-200 cursor-pointer"
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-2.5 rounded-[10px] font-medium text-[15px] shadow-sm hover:shadow transition-all duration-200"
               >
                 Save Goal
               </button>
@@ -224,41 +239,37 @@ export default function FitnessGoals() {
           </form>
         </div>
 
-        {/* ── DAILY HABITS ── */}
-        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-[#ECECEC] mb-8">
-          {/* Header row */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        {/* DAILY HABITS */}
+        <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-sm mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 border-b border-[#F1F5F9] pb-3">
             <div>
-              <h2 className="text-2xl font-['Playfair_Display'] font-bold text-[#222] flex items-center gap-2">
-                <Repeat2 size={22} className="text-[#059669]" />
+              <h2 className="text-[20px] font-semibold text-[#1E293B] flex items-center gap-2">
+                <Repeat2 size={20} className="text-[#2563EB]" />
                 Daily Habits
               </h2>
-              <p className="text-[#777] text-sm mt-1">
-                Build consistency — check off each habit every day.
+              <p className="text-[#64748B] text-[13px] mt-0.5">
+                Build long-term routines by completing and checking habits daily.
               </p>
             </div>
 
             {habits.length > 0 && (
-              <div className="flex items-center gap-3 shrink-0">
-                {/* Progress ring-style pill */}
-                <div className="bg-[#ECFDF5] text-[#059669] px-5 py-2 rounded-2xl font-bold text-sm">
-                  <Flame size={14} className="inline mr-1 mb-0.5" />
-                  {completionPct}% Today
-                </div>
+              <div className="bg-[#E7F6EC] text-[#16A34A] border border-[#16A34A]/10 px-3.5 py-1.5 rounded-[8px] text-[12px] font-bold uppercase tracking-wider flex items-center gap-1.5 shrink-0 shadow-sm">
+                <Flame size={14} className="fill-[#16A34A] text-[#16A34A]" />
+                <span>{completionPct}% Complete</span>
               </div>
             )}
           </div>
 
           {/* Progress bar */}
           {habits.length > 0 && (
-            <div className="mb-6">
-              <div className="flex justify-between text-xs text-[#999] mb-1.5">
-                <span>{completedHabits} of {habits.length} completed</span>
+            <div className="mb-6 bg-[#F8FAFC] p-4 rounded-[12px] border border-[#E2E8F0]/50">
+              <div className="flex justify-between text-[12px] font-semibold text-[#64748B] mb-2.5">
+                <span>{completedHabits} of {habits.length} habits completed</span>
                 <span>{completionPct}%</span>
               </div>
-              <div className="w-full h-2 bg-[#F0EDEA] rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
                 <div
-                  className="h-2 bg-[#059669] rounded-full transition-all duration-500"
+                  className="h-full bg-[#16A34A] rounded-full transition-all duration-500"
                   style={{ width: `${completionPct}%` }}
                 />
               </div>
@@ -268,40 +279,40 @@ export default function FitnessGoals() {
           {/* Add habit form */}
           <form onSubmit={addHabit} className="flex gap-3 mb-6">
             <input
-              className="flex-1 bg-[#F8F6F4] rounded-2xl px-5 py-3.5 outline-none text-sm border border-transparent focus:border-[#059669] focus:bg-white transition-all duration-200"
-              placeholder="Add a new habit… e.g. Drink 3L water, 30 min walk"
+              className="flex-1 bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-3 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+              placeholder="e.g. Drink 3L water, stretch for 15 minutes"
               value={habitInput}
               onChange={(e) => setHabitInput(e.target.value)}
             />
             <button
               type="submit"
               disabled={addingHabit || !habitInput.trim()}
-              className="flex items-center gap-2 bg-[#059669] hover:bg-[#047857] text-white px-6 py-3.5 rounded-2xl text-sm font-semibold transition hover:scale-[1.01] duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-3 rounded-[10px] font-medium text-[14px] transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed shrink-0 flex items-center justify-center gap-1.5"
             >
               <Plus size={16} />
-              Add
+              Add Habit
             </button>
           </form>
 
           {/* Habits list */}
           {loadingHabits ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#059669]" />
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#2563EB]" />
             </div>
           ) : habits.length === 0 ? (
-            <div className="text-center py-10 text-[#AAA]">
-              <Repeat2 size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No habits added yet. Start building your routine above!</p>
+            <div className="text-center py-10 text-[#94A3B8]">
+              <Repeat2 size={36} className="mx-auto mb-2.5 opacity-40 text-[#64748B]" />
+              <p className="text-sm">No daily habits scheduled. Define something to track above.</p>
             </div>
           ) : (
             <div className="space-y-2">
               {habits.map((habit) => (
                 <div
                   key={habit.id}
-                  className={`group flex items-center justify-between p-4 rounded-2xl transition-all duration-200 ${
+                  className={`group flex items-center justify-between p-3.5 rounded-[10px] border transition-all duration-200 ${
                     habit.completed
-                      ? "bg-[#ECFDF5] border border-[#D1F2DD]"
-                      : "bg-[#F8F6F4] hover:bg-[#F0EDEA] border border-transparent"
+                      ? "bg-[#E7F6EC] border-[#16A34A]/25"
+                      : "bg-[#F8FAFC] border-[#E2E8F0]/40 hover:bg-[#F1F5F9]"
                   }`}
                 >
                   {/* Toggle + name */}
@@ -310,28 +321,28 @@ export default function FitnessGoals() {
                     className="flex items-center gap-3 flex-1 text-left cursor-pointer"
                   >
                     {habit.completed ? (
-                      <CheckSquare size={22} className="text-[#059669] shrink-0" />
+                      <CheckSquare size={20} className="text-[#16A34A] shrink-0" />
                     ) : (
-                      <Square size={22} className="text-[#CCC] shrink-0" />
+                      <Square size={20} className="text-[#94A3B8] shrink-0" />
                     )}
                     <span
-                      className={`text-sm font-medium transition-all duration-200 ${
-                        habit.completed ? "line-through text-[#999]" : "text-[#222]"
+                      className={`text-[14px] font-medium transition-all duration-200 ${
+                        habit.completed ? "line-through text-[#64748B]" : "text-[#1E293B]"
                       }`}
                     >
                       {habit.habitName}
                     </span>
                     {habit.completed && (
-                      <span className="ml-1 text-[10px] font-semibold text-[#059669] bg-white border border-[#D1F2DD] px-2 py-0.5 rounded-full">
-                        Done ✓
+                      <span className="ml-1.5 text-[10px] font-bold text-[#16A34A] bg-white border border-[#16A34A]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        Done
                       </span>
                     )}
                   </button>
 
                   {/* Delete */}
                   <button
-                    onClick={() => removeHabit(habit.id)}
-                    className="opacity-0 group-hover:opacity-100 shrink-0 text-red-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition duration-150 cursor-pointer ml-2"
+                    onClick={(e) => removeHabit(e, habit.id)}
+                    className="shrink-0 text-[#94A3B8] hover:text-[#EF4444] p-1.5 rounded-full hover:bg-slate-200/40 transition duration-150 cursor-pointer ml-2"
                     title="Remove habit"
                   >
                     <Trash2 size={15} />
@@ -342,54 +353,65 @@ export default function FitnessGoals() {
           )}
         </div>
 
-        {/* ── GOALS LIST ── */}
+        {/* GOALS LIST */}
         {loadingGoals ? (
           <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#059669]" />
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#2563EB]" />
           </div>
         ) : goals.length === 0 ? (
-          <div className="bg-white rounded-[32px] p-12 shadow-sm border border-[#ECECEC] text-center">
-            <Target size={48} className="text-[#DDD] mx-auto mb-4" />
-            <p className="text-[#888] text-base">
+          <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-12 text-center shadow-sm">
+            <Target size={40} className="text-[#94A3B8] mx-auto mb-3 opacity-50" />
+            <p className="text-[#64748B] text-[15px]">
               No goals set yet. Create your first fitness goal above!
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* ACTIVE GOALS */}
             {activeGoals.length > 0 && (
-              <div className="bg-white rounded-[32px] p-6 shadow-sm border border-[#ECECEC]">
-                <h2 className="text-xl font-['Playfair_Display'] font-bold text-[#222] mb-5 flex items-center gap-2">
-                  <Circle size={20} className="text-[#059669]" />
-                  Active Goals
+              <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-sm">
+                <h2 className="text-[18px] font-bold text-[#1E293B] mb-5 flex items-center gap-2 border-b border-[#F1F5F9] pb-3">
+                  <Circle size={18} className="text-[#2563EB]" />
+                  Active Targets
                 </h2>
                 <div className="space-y-4">
                   {activeGoals.map((goal) => (
                     <div
                       key={goal.id}
-                      className="group bg-[#F8F6F4] hover:bg-[#F0EDEA] transition-all duration-200 rounded-2xl p-5 flex items-center justify-between gap-4"
+                      className="group bg-[#F8FAFC] border border-[#E2E8F0]/40 hover:bg-[#F1F5F9] transition-all duration-200 rounded-[10px] p-4 flex items-center justify-between gap-4"
                     >
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-base text-[#222] capitalize">
-                          {goal.goalName}
-                        </h3>
-                        <div className="flex gap-3 mt-2 flex-wrap">
-                          <span className="bg-white text-[#059669] border border-[#D1F2DD] px-3 py-0.5 rounded-full text-xs font-semibold">
-                            Target: {goal.targetValue}
-                          </span>
-                          {goal.deadline && (
-                            <span className="bg-white text-[#666] border border-[#ECECEC] px-3 py-0.5 rounded-full text-xs font-medium">
-                              Due: {goal.deadline}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {/* Checkbox button to complete */}
+                        <button
+                          onClick={() => handleToggleGoal(goal)}
+                          className="text-[#94A3B8] hover:text-[#2563EB] transition duration-150 shrink-0"
+                          title="Mark completed"
+                        >
+                          <Circle size={18} />
+                        </button>
+                        
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-[15px] text-[#1E293B] capitalize">
+                            {goal.goalName}
+                          </h3>
+                          <div className="flex gap-2.5 mt-2 flex-wrap">
+                            <span className="bg-white text-[#2563EB] border border-[#2563EB]/15 px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
+                              Target: {goal.targetValue}
                             </span>
-                          )}
+                            {goal.deadline && (
+                              <span className="bg-white text-[#64748B] border border-[#E2E8F0] px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
+                                Due: {goal.deadline}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <button
                         onClick={() => removeGoal(goal.id)}
-                        className="shrink-0 text-red-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition duration-150 cursor-pointer"
+                        className="shrink-0 text-[#94A3B8] hover:text-[#EF4444] p-1.5 rounded-full hover:bg-slate-200/40 transition duration-150 cursor-pointer"
                         title="Delete goal"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   ))}
@@ -399,38 +421,49 @@ export default function FitnessGoals() {
 
             {/* COMPLETED GOALS */}
             {completedGoals.length > 0 && (
-              <div className="bg-white rounded-[32px] p-6 shadow-sm border border-[#ECECEC]">
-                <h2 className="text-xl font-['Playfair_Display'] font-bold text-[#222] mb-5 flex items-center gap-2">
-                  <CheckCircle2 size={20} className="text-[#059669]" />
-                  Completed Goals
+              <div className="bg-white rounded-[16px] border border-[#E2E8F0] p-6 shadow-sm">
+                <h2 className="text-[18px] font-bold text-[#1E293B] mb-5 flex items-center gap-2 border-b border-[#F1F5F9] pb-3">
+                  <CheckCircle2 size={18} className="text-[#16A34A]" />
+                  Completed Targets
                 </h2>
                 <div className="space-y-4">
                   {completedGoals.map((goal) => (
                     <div
                       key={goal.id}
-                      className="bg-[#E8F8EE] rounded-2xl p-5 flex items-center justify-between gap-4 opacity-80"
+                      className="group bg-[#E7F6EC] border border-[#16A34A]/25 rounded-[10px] p-4 flex items-center justify-between gap-4 opacity-90"
                     >
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-base text-[#059669] capitalize line-through">
-                          {goal.goalName}
-                        </h3>
-                        <div className="flex gap-3 mt-2 flex-wrap">
-                          <span className="bg-white text-[#059669] border border-[#D1F2DD] px-3 py-0.5 rounded-full text-xs font-semibold">
-                            Target: {goal.targetValue}
-                          </span>
-                          {goal.deadline && (
-                            <span className="bg-white text-[#666] border border-[#ECECEC] px-3 py-0.5 rounded-full text-xs font-medium">
-                              Due: {goal.deadline}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {/* Checked button to toggle active again */}
+                        <button
+                          onClick={() => handleToggleGoal(goal)}
+                          className="text-[#16A34A] hover:text-[#EF4444] transition duration-150 shrink-0"
+                          title="Mark active"
+                        >
+                          <CheckCircle2 size={18} className="fill-[#16A34A]/10" />
+                        </button>
+
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-[15px] text-[#16A34A] capitalize line-through">
+                            {goal.goalName}
+                          </h3>
+                          <div className="flex gap-2.5 mt-2 flex-wrap">
+                            <span className="bg-white text-[#16A34A] border border-[#16A34A]/20 px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
+                              Target: {goal.targetValue}
                             </span>
-                          )}
+                            {goal.deadline && (
+                              <span className="bg-white text-[#64748B] border border-[#E2E8F0] px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
+                                Due: {goal.deadline}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <button
                         onClick={() => removeGoal(goal.id)}
-                        className="shrink-0 text-red-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition duration-150 cursor-pointer"
+                        className="shrink-0 text-[#94A3B8] hover:text-[#EF4444] p-1.5 rounded-full hover:bg-[#FDECEC] transition duration-150 cursor-pointer"
                         title="Delete goal"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   ))}
@@ -439,7 +472,6 @@ export default function FitnessGoals() {
             )}
           </div>
         )}
-
       </div>
     </div>
   );

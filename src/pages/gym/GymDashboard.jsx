@@ -26,29 +26,31 @@ export default function GymDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F6F4] font-['Inter'] flex">
+    <div className="min-h-screen bg-[#F5F7FA] font-['Inter',_sans-serif] flex">
+      {/* SIDEBAR */}
       <GymSidebar />
 
-      <div className="flex-1 px-5 md:px-8 py-6 overflow-y-auto">
+      {/* MAIN CONTENT */}
+      <div className="flex-1 p-6 md:p-10 max-w-[1600px] mx-auto w-full overflow-y-auto">
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-['Playfair_Display'] font-bold text-[#222]">
-              Fitness Dashboard
+            <h1 className="text-[32px] font-bold text-[#1E293B] tracking-tight leading-none mb-2">
+              Fitness Hub
             </h1>
-            <p className="text-[#777] text-sm mt-2">
-              Track your energy, log your activities, and maintain a healthy meal plan.
+            <p className="text-[#64748B] text-[15px]">
+              Track your streaks, log workouts, and optimize your weekly meal planner.
             </p>
           </div>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center h-[60vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#059669]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#2563EB]"></div>
           </div>
         ) : (
           dashboard && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* STAT CARDS */}
               <DashboardCards
                 streak={dashboard.workoutStreak}
@@ -57,7 +59,7 @@ export default function GymDashboard() {
               />
 
               {/* GRID FOR WORKOUTS & MEALS */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <RecentWorkouts workouts={dashboard.recentWorkouts} />
                 <WeeklyMealPlan meals={dashboard.mealPlans} />
               </div>

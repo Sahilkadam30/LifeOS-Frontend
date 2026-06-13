@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { LayoutDashboard, Dumbbell, Target, Home, LogOut } from "lucide-react";
+import { LayoutDashboard, Dumbbell, Target, Home, LogOut, Zap, Utensils } from "lucide-react";
 import { logout } from "../store/slice/auth.slice";
 
 export default function GymSidebar() {
@@ -12,61 +12,208 @@ export default function GymSidebar() {
     navigate("/login");
   };
 
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-      isActive
-        ? "bg-[#E6F4EA] text-[#059669] shadow-sm"
-        : "text-[#666] hover:bg-[#F8F6F4] hover:text-[#222]"
-    }`;
-
   return (
-    <div className="flex flex-col justify-between w-[240px] bg-white border-r border-[#ECECEC] p-5 shrink-0 min-h-screen font-['Inter']">
+    <div style={{
+      width: 280,
+      minWidth: 280,
+      background: "#071B3A",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      padding: "28px 16px",
+      position: "sticky",
+      top: 0,
+      height: "100vh",
+      borderRight: "1px solid rgba(255,255,255,0.05)",
+      fontFamily: "'Inter', sans-serif"
+    }}>
       <div>
-        <h1 
-          className="text-3xl font-['Playfair_Display'] font-bold text-[#222] mb-8 cursor-pointer hover:opacity-85"
+        {/* LOGO */}
+        <div 
           onClick={() => navigate("/gym/dashboard")}
+          style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 40, paddingLeft: 8, cursor: "pointer" }}
         >
-          Fitness Hub
-        </h1>
+          <div style={{
+            width: 40, height: 40, borderRadius: 12,
+            background: "linear-gradient(135deg,#2563EB,#00C853)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Zap style={{ color: "#fff", size: 20 }} />
+          </div>
+          <div>
+            <p style={{ color: "#fff", fontWeight: 700, fontSize: 17, margin: 0, lineHeight: 1.2 }}>Fitness Hub</p>
+            <p style={{ color: "#64748B", fontSize: 12, margin: 0 }}>Active Lifestyle</p>
+          </div>
+        </div>
 
-        <div className="space-y-2">
-          <NavLink to="/gym/dashboard" className={linkClass}>
-            <LayoutDashboard size={18} />
+        {/* SECTION LABEL */}
+        <p style={{ color: "#64748B", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", paddingLeft: 12, marginBottom: 8 }}>
+          Navigation
+        </p>
+
+        {/* NAVIGATION ITEMS */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {/* DASHBOARD */}
+          <NavLink 
+            to="/gym/dashboard"
+            style={({ isActive }) => ({
+              width: "100%", display: "flex", alignItems: "center", gap: 12,
+              padding: "11px 14px", borderRadius: 10, cursor: "pointer",
+              background: isActive ? "rgba(0,200,83,0.15)" : "transparent",
+              borderLeft: isActive ? "3px solid #00C853" : "3px solid transparent",
+              color: isActive ? "#00C853" : "#94A3B8",
+              fontWeight: isActive ? 600 : 400,
+              fontSize: 14,
+              transition: "all 0.2s",
+              textDecoration: "none"
+            })}
+            onMouseEnter={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)"; 
+                e.currentTarget.style.color = "#fff"; 
+              } 
+            }}
+            onMouseLeave={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "transparent"; 
+                e.currentTarget.style.color = "#94A3B8"; 
+              } 
+            }}
+          >
+            <LayoutDashboard size={16} style={{ flexShrink: 0 }} />
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to="/gym/workouts" className={linkClass}>
-            <Dumbbell size={18} />
+          {/* WORKOUTS */}
+          <NavLink 
+            to="/gym/workouts"
+            style={({ isActive }) => ({
+              width: "100%", display: "flex", alignItems: "center", gap: 12,
+              padding: "11px 14px", borderRadius: 10, cursor: "pointer",
+              background: isActive ? "rgba(0,200,83,0.15)" : "transparent",
+              borderLeft: isActive ? "3px solid #00C853" : "3px solid transparent",
+              color: isActive ? "#00C853" : "#94A3B8",
+              fontWeight: isActive ? 600 : 400,
+              fontSize: 14,
+              transition: "all 0.2s",
+              textDecoration: "none"
+            })}
+            onMouseEnter={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)"; 
+                e.currentTarget.style.color = "#fff"; 
+              } 
+            }}
+            onMouseLeave={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "transparent"; 
+                e.currentTarget.style.color = "#94A3B8"; 
+              } 
+            }}
+          >
+            <Dumbbell size={16} style={{ flexShrink: 0 }} />
             <span>Workout Log</span>
           </NavLink>
 
-          <NavLink to="/gym/goals" className={linkClass}>
-            <Target size={18} />
+          {/* GOALS */}
+          <NavLink 
+            to="/gym/goals"
+            style={({ isActive }) => ({
+              width: "100%", display: "flex", alignItems: "center", gap: 12,
+              padding: "11px 14px", borderRadius: 10, cursor: "pointer",
+              background: isActive ? "rgba(0,200,83,0.15)" : "transparent",
+              borderLeft: isActive ? "3px solid #00C853" : "3px solid transparent",
+              color: isActive ? "#00C853" : "#94A3B8",
+              fontWeight: isActive ? 600 : 400,
+              fontSize: 14,
+              transition: "all 0.2s",
+              textDecoration: "none"
+            })}
+            onMouseEnter={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)"; 
+                e.currentTarget.style.color = "#fff"; 
+              } 
+            }}
+            onMouseLeave={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "transparent"; 
+                e.currentTarget.style.color = "#94A3B8"; 
+              } 
+            }}
+          >
+            <Target size={16} style={{ flexShrink: 0 }} />
             <span>Fitness Goals</span>
           </NavLink>
 
-          <NavLink to="/gym/meals" className={linkClass}>
-            <Target size={18} />
+          {/* MEAL PLANNER */}
+          <NavLink 
+            to="/gym/meals"
+            style={({ isActive }) => ({
+              width: "100%", display: "flex", alignItems: "center", gap: 12,
+              padding: "11px 14px", borderRadius: 10, cursor: "pointer",
+              background: isActive ? "rgba(0,200,83,0.15)" : "transparent",
+              borderLeft: isActive ? "3px solid #00C853" : "3px solid transparent",
+              color: isActive ? "#00C853" : "#94A3B8",
+              fontWeight: isActive ? 600 : 400,
+              fontSize: 14,
+              transition: "all 0.2s",
+              textDecoration: "none"
+            })}
+            onMouseEnter={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)"; 
+                e.currentTarget.style.color = "#fff"; 
+              } 
+            }}
+            onMouseLeave={e => { 
+              if (!e.currentTarget.classList.contains("active")) { 
+                e.currentTarget.style.background = "transparent"; 
+                e.currentTarget.style.color = "#94A3B8"; 
+              } 
+            }}
+          >
+            <Utensils size={16} style={{ flexShrink: 0 }} />
             <span>Meal Planner</span>
           </NavLink>
         </div>
       </div>
 
-      <div className="space-y-3">
+      {/* BOTTOM ACTIONS */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <button
           onClick={() => navigate("/home")}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-sm font-semibold border border-[#E0E0E0] text-[#555] hover:bg-[#F8F6F4] transition duration-200 cursor-pointer"
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 12,
+            padding: "11px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+            background: "transparent", color: "#94A3B8", fontSize: 14, textAlign: "left",
+            transition: "all 0.2s",
+            fontFamily: "'Inter', sans-serif"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "#fff"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#94A3B8"; }}
         >
           <Home size={16} />
           <span>Back to Home</span>
         </button>
 
+        <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 0" }} />
+
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-sm font-semibold bg-[#059669] text-white hover:bg-[#047857] transition duration-200 cursor-pointer shadow-sm shadow-emerald-100"
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 12,
+            padding: "11px 14px", borderRadius: 10, border: "none", cursor: "pointer",
+            background: "transparent", color: "#EF4444", fontSize: 14, textAlign: "left",
+            transition: "all 0.2s",
+            fontFamily: "'Inter', sans-serif"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.1)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
         >
           <LogOut size={16} />
-          <span>Logout</span>
+          Logout
         </button>
       </div>
     </div>

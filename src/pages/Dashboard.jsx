@@ -67,6 +67,11 @@ export default function Dashboard() {
           <p>{data.story}</p>
         </div>
 
+        <div className="card" onClick={() => navigate("/planner")}>
+          <h2>📖 planner</h2>
+          <p>{data.story}</p>
+        </div>
+
       </div>
     </div>
   );

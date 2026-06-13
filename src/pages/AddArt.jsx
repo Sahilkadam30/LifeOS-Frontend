@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, UploadCloud, Sparkles, Image as ImageIcon } from "lucide-react";
 
 export default function AddArt() {
   const [files, setFiles] = useState([]);
@@ -14,13 +15,11 @@ export default function AddArt() {
 
   const handleFiles = (selectedFiles) => {
     const fileArray = Array.from(selectedFiles);
-
     setFiles(fileArray);
 
     const previewArray = fileArray.map(file =>
       URL.createObjectURL(file)
     );
-
     setPreviews(previewArray);
   };
 
@@ -66,7 +65,6 @@ export default function AddArt() {
       }
 
       setSuccess(true);
-
       setTimeout(() => navigate("/art-zone"), 2000);
 
     } catch (error) {
@@ -78,91 +76,111 @@ export default function AddArt() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#C9996B]">
-
+    <div className="min-h-screen bg-[#F5F7FA] font-['Inter',_sans-serif] flex items-center justify-center p-6 relative">
       {success && (
-        <div className="fixed top-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
-          🎉 Uploaded Successfully!
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-[#16A34A] text-white px-6 py-3 rounded-[10px] shadow-lg font-semibold z-50 flex items-center gap-2">
+          <span>🎉 Artwork uploaded successfully!</span>
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-xl shadow w-[420px]">
+      <div className="bg-white border border-[#E2E8F0] p-8 rounded-[16px] shadow-sm w-full max-w-[480px]">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate("/art-zone")}
+          className="flex items-center gap-2 text-[#64748B] hover:text-[#1E293B] text-[14px] font-medium mb-6 transition"
+        >
+          <ArrowLeft size={16} />
+          <span>Back to Gallery</span>
+        </button>
 
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+        <h2 className="text-[24px] font-bold text-[#1E293B] mb-1.5">
           Upload Your Art
         </h2>
+        <p className="text-[#64748B] text-[14px] mb-6">
+          Publish your latest visual drafts and creative notes.
+        </p>
 
+        {/* Drag & Drop Zone */}
         <div
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
-          className="border-2 border-dashed p-6 text-center rounded-lg cursor-pointer"
+          onClick={() => document.getElementById("art-file-input").click()}
+          className="border-2 border-dashed border-[#E2E8F0] hover:border-[#2563EB] bg-[#F8FAFC] hover:bg-[#F1F5F9] p-8 text-center rounded-[12px] cursor-pointer transition-colors duration-200 flex flex-col items-center justify-center gap-2.5"
         >
-          Drag & Drop images here  
-          <br /> or select below
+          <UploadCloud size={32} className="text-[#94A3B8]" />
+          <div>
+            <p className="text-[14px] font-semibold text-[#1E293B]">Drag & Drop your images here</p>
+            <p className="text-[12px] text-[#64748B] mt-0.5">or click to search files</p>
+          </div>
         </div>
 
         <input
+          id="art-file-input"
           type="file"
           multiple
           disabled={loading}
           onChange={(e) => handleFiles(e.target.files)}
-          className="mt-3 w-full"
+          className="hidden"
         />
 
-        <div className="grid grid-cols-3 gap-2 mt-4">
-          {previews.map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              alt="preview"
-              className="w-full h-24 object-cover rounded"
-            />
-          ))}
-        </div>
-
-        <textarea
-          placeholder="Write your caption..."
-          className="w-full mt-4 border p-3 rounded-lg h-24"
-          value={caption}
-          disabled={loading}
-          onChange={(e) => setCaption(e.target.value)}
-        />
-
-        <button
-          onClick={generateCaption}
-          disabled={loading}
-          className="mt-2 text-blue-600 text-sm"
-        >
-          🤖 Generate Caption
-        </button>
-
-        {loading && (
-          <div className="w-full bg-gray-200 rounded mt-3">
-            <div
-              className="bg-green-500 text-xs text-white text-center p-1 rounded"
-              style={{ width: `${progress}%` }}
-            >
-              {progress}%
-            </div>
+        {/* Previews */}
+        {previews.length > 0 && (
+          <div className="grid grid-cols-3 gap-2.5 mt-4">
+            {previews.map((img, i) => (
+              <div key={i} className="relative rounded-[8px] overflow-hidden border border-[#E2E8F0]">
+                <img
+                  src={img}
+                  alt="preview"
+                  className="w-full h-20 object-cover"
+                />
+              </div>
+            ))}
           </div>
         )}
 
+        {/* Caption */}
+        <div className="mt-5 space-y-1.5">
+          <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider block">
+            Caption Description
+          </label>
+          <textarea
+            placeholder="Describe your artwork or process..."
+            className="w-full border border-[#E2E8F0] rounded-[10px] p-3 h-24 outline-none text-[14px] text-[#1E293B] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all resize-none"
+            value={caption}
+            disabled={loading}
+            onChange={(e) => setCaption(e.target.value)}
+          />
+        </div>
+
+        {/* Helper Assist Button */}
+        <button
+          onClick={generateCaption}
+          disabled={loading}
+          className="mt-2.5 text-[#2563EB] hover:text-[#1D4ED8] text-[13px] font-semibold flex items-center gap-1.5 transition"
+        >
+          <Sparkles size={14} />
+          <span>Auto-generate Caption</span>
+        </button>
+
+        {/* Progress bar */}
+        {loading && (
+          <div className="w-full bg-[#E2E8F0] h-2.5 rounded-full mt-5 overflow-hidden">
+            <div
+              className="bg-[#16A34A] h-full rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+
+        {/* Action button */}
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="bg-black text-white px-4 py-3 mt-4 w-full rounded-lg"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium px-5 py-3 rounded-[10px] text-[15px] shadow-sm hover:shadow transition-all duration-200 w-full mt-6 flex items-center justify-center gap-2"
         >
-          {loading ? "Uploading..." : "Post"}
+          <ImageIcon size={16} />
+          <span>{loading ? `Uploading (${progress}%)` : "Post Art Piece"}</span>
         </button>
-
-        <button
-          onClick={() => navigate("/art-zone")}
-          disabled={loading}
-          className="mt-3 w-full border py-2 rounded-lg"
-        >
-          Cancel
-        </button>
-
       </div>
     </div>
   );

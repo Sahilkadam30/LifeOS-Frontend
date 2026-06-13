@@ -277,7 +277,7 @@ export default function FinanceDashboard() {
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-4 gap-4 mb-6">
           <FinanceStats title="Current Savings" value={`₹${Number(totalSavings).toLocaleString()}`} />
           <FinanceStats title="Monthly Expenses" value={`₹${Number(monthlyExpenses).toLocaleString()}`} />
           <FinanceStats title="Investment Value" value={`₹${Number(investmentValue).toLocaleString()}`} />

@@ -26,6 +26,11 @@ import ExpenseTrackerPage from "./pages/finance/ExpenseTrackerPage";
 import SavingsTrackerPage from "./pages/finance/SavingsTrackerPage";
 import InvestmentTrackerPage from "./pages/finance/InvestmentTrackerPage";
 
+import PlannerDashboard from "./pages/planner/PlannerDashboard";
+import TaskManagerPage from "./pages/planner/TaskManagerPage";
+import CalendarPage from "./pages/planner/CalendarPage";
+import DeadlineTrackerPage from "./pages/planner/DeadlineTrackerPage";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import TravelSidebar from "./components/TravelSidebar";
 
@@ -58,6 +63,11 @@ function App() {
             <Route path="/finance/expenses" element={<ProtectedRoute><ExpenseTrackerPage /></ProtectedRoute>} />
             <Route path="/finance/savings" element={<ProtectedRoute><SavingsTrackerPage /></ProtectedRoute>} />
             <Route path="/finance/investments" element={<ProtectedRoute><InvestmentTrackerPage /></ProtectedRoute>} />
+
+            <Route path="/planner" element={<ProtectedRoute><PlannerDashboard /></ProtectedRoute>} />
+            <Route path="/planner/tasks" element={<ProtectedRoute><TaskManagerPage /></ProtectedRoute>} />
+            <Route path="/planner/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+            <Route path="/planner/deadlines" element={<ProtectedRoute><DeadlineTrackerPage /></ProtectedRoute>} />
 
 
 
