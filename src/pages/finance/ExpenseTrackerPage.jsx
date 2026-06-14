@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import FinanceSidebar from "../../components/finance/FinanceSidebar";
 import ExpenseForm from "../../components/finance/ExpenseForm";
 import ExpenseTable from "../../components/finance/ExpenseTable";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import {
   getExpenses,
   createExpense,
@@ -25,6 +26,8 @@ export default function ExpenseTrackerPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     loadExpenses();
@@ -50,12 +53,21 @@ export default function ExpenseTrackerPage() {
     }
   };
 
-  const removeExpense = async (id) => {
+  const triggerDeleteExpense = (id) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteExpense = async () => {
+    if (!deleteId) return;
     try {
-      await deleteExpense(id);
-      setExpenses((prev) => prev.filter((e) => e.id !== id));
+      await deleteExpense(deleteId);
+      setExpenses((prev) => prev.filter((e) => e.id !== deleteId));
     } catch (err) {
       console.error("Failed to delete expense:", err);
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteId(null);
     }
   };
 
@@ -151,12 +163,20 @@ export default function ExpenseTrackerPage() {
             ) : (
               <ExpenseTable
                 expenses={filteredExpenses}
-                onDelete={removeExpense}
+                onDelete={triggerDeleteExpense}
               />
             )}
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal
+        open={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setDeleteId(null); }}
+        onConfirm={confirmDeleteExpense}
+        title="Delete Expense?"
+        description="Do you want to delete this expense entry? This action cannot be undone."
+      />
     </div>
   );
 }

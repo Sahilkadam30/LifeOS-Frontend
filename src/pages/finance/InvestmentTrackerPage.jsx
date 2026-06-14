@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import FinanceSidebar from "../../components/finance/FinanceSidebar";
 import InvestmentForm from "../../components/finance/InvestmentForm";
 import InvestmentTable from "../../components/finance/InvestmentTable";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import {
   getInvestments,
   createInvestment,
@@ -12,6 +13,8 @@ export default function InvestmentTrackerPage() {
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     loadInvestments();
@@ -40,12 +43,21 @@ export default function InvestmentTrackerPage() {
     }
   };
 
-  const remove = async (id) => {
+  const triggerDelete = (id) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      await deleteInvestment(id);
-      setInvestments((prev) => prev.filter((i) => i.id !== id));
+      await deleteInvestment(deleteId);
+      setInvestments((prev) => prev.filter((i) => i.id !== deleteId));
     } catch (err) {
       console.error("Failed to delete investment:", err);
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteId(null);
     }
   };
 
@@ -138,12 +150,20 @@ export default function InvestmentTrackerPage() {
             ) : (
               <InvestmentTable
                 investments={investments}
-                onDelete={remove}
+                onDelete={triggerDelete}
               />
             )}
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal
+        open={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setDeleteId(null); }}
+        onConfirm={confirmDelete}
+        title="Delete Investment?"
+        description="Do you want to delete this investment entry? This action cannot be undone."
+      />
     </div>
   );
 }

@@ -72,6 +72,11 @@ export default function Dashboard() {
           <p>{data.story}</p>
         </div>
 
+        <div className="card" onClick={() => navigate("/skills/dashboard")}>
+          <h2>📖 skill tracking</h2>
+          <p>{data.story}</p>
+        </div>
+
       </div>
     </div>
   );

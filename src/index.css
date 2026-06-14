@@ -11,3 +11,13 @@
 .card {
   @apply bg-white p-4 rounded-2xl shadow-md;
 }
+
+/* ── react-big-calendar: restore cursor & pointer events broken by Tailwind Preflight ── */
+.rbc-toolbar button,
+.rbc-btn {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+.rbc-toolbar button:disabled {
+  cursor: not-allowed !important;
+}

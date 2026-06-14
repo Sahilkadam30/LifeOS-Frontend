@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PlannerSidebar from "../../components/planner/PlannerSidebar";
 import TaskForm  from "../../components/planner/TaskForm";
 import TaskTable from "../../components/planner/TaskTable";
+import SuccessModal from "../../components/SuccessModal";
 import { getTasks, createTask, updateTask, deleteTask, markCompleted } from "../../services/plannerService";
 
 const card = {
@@ -17,6 +18,8 @@ export default function TaskManagerPage() {
   const [editTask, setEditTask] = useState(null);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successInfo, setSuccessInfo] = useState({ title: "", description: "" });
 
   useEffect(() => { loadTasks(); }, []);
 
@@ -31,8 +34,21 @@ export default function TaskManagerPage() {
 
   const handleSave = async (task) => {
     try {
-      if (editTask) { await updateTask(editTask.id, task); setEditTask(null); }
-      else { await createTask(task); }
+      if (editTask) {
+        await updateTask(editTask.id, task);
+        setSuccessInfo({
+          title: "Task Updated!",
+          description: "Your task changes have been saved successfully.",
+        });
+        setEditTask(null);
+      } else {
+        await createTask(task);
+        setSuccessInfo({
+          title: "Task Created!",
+          description: "Your new task has been created successfully.",
+        });
+      }
+      setShowSuccess(true);
       loadTasks();
     } catch (err) { console.error(err); }
   };
@@ -88,6 +104,13 @@ export default function TaskManagerPage() {
           )}
         </div>
       </main>
+
+      <SuccessModal
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title={successInfo.title}
+        description={successInfo.description}
+      />
 
       <style>{`
         .fintech-spinner { width:36px;height:36px;border:4px solid #E2E8F0;border-top-color:#2563EB;border-radius:50%;animation:spin .8s linear infinite; }

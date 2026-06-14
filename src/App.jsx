@@ -34,6 +34,13 @@ import DeadlineTrackerPage from "./pages/planner/DeadlineTrackerPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TravelSidebar from "./components/TravelSidebar";
 
+import SkillDashboard from "./pages/skills/SkillDashboard";
+import SubjectsPage from "./pages/skills/SubjectsPage";
+import StudySessionsPage from "./pages/skills/StudySessionsPage";
+import LearningJournalPage from "./pages/skills/LearningJournalPage";
+import SkillProgressPage from "./pages/skills/SkillProgressPage";
+import AchievementsPage from "./pages/skills/AchievementsPage";
+
 function App() {
   return (
     <Provider store={store}>
@@ -68,6 +75,13 @@ function App() {
             <Route path="/planner/tasks" element={<ProtectedRoute><TaskManagerPage /></ProtectedRoute>} />
             <Route path="/planner/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
             <Route path="/planner/deadlines" element={<ProtectedRoute><DeadlineTrackerPage /></ProtectedRoute>} />
+
+            <Route path="/skills/dashboard" element={<ProtectedRoute><SkillDashboard /></ProtectedRoute>} />
+            <Route path="/skills/subjects" element={<ProtectedRoute><SubjectsPage /></ProtectedRoute>} />
+            <Route path="/skills/study-sessions" element={<ProtectedRoute><StudySessionsPage /></ProtectedRoute>} />
+            <Route path="/skills/journal" element={<ProtectedRoute><LearningJournalPage /></ProtectedRoute>} />
+            <Route path="/skills/progress" element={<ProtectedRoute><SkillProgressPage /></ProtectedRoute>} />
+            <Route path="/skills/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
 
 
 

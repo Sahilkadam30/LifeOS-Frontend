@@ -5,11 +5,13 @@ import {
   deleteWorkout
 } from "../../services/gymService";
 import GymSidebar from "../../components/gym/GymSidebar";
+import SuccessModal from "../../components/SuccessModal";
 import { Calendar, Clock, Dumbbell, Tag, Target, Trash2 } from "lucide-react";
 
 export default function WorkoutLog() {
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [form, setForm] = useState({
     workoutName: "",
     workoutType: "",
@@ -50,6 +52,7 @@ export default function WorkoutLog() {
         durationMinutes: "",
         workoutDate: ""
       });
+      setShowSuccess(true);
       loadWorkouts();
     } catch (error) {
       console.log(error);
@@ -263,6 +266,12 @@ export default function WorkoutLog() {
           )}
         </div>
       </div>
+      <SuccessModal
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Workout Logged!"
+        description="Your workout session has been logged successfully."
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import GymSidebar from "../../components/gym/GymSidebar";
+import SuccessModal from "../../components/SuccessModal";
 import { getMeals, createMeal, deleteMeal } from "../../services/gymService";
 import { UtensilsCrossed, Trash2, Plus } from "lucide-react";
 
@@ -13,6 +14,7 @@ export default function MealPlanPage() {
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [form, setForm] = useState({
     dayName: "",
     mealType: "",
@@ -45,6 +47,7 @@ export default function MealPlanPage() {
       setSaving(true);
       await createMeal(form);
       setForm({ dayName: "", mealType: "", mealDescription: "" });
+      setShowSuccess(true);
       loadMeals();
     } catch (error) {
       console.error("Failed to save meal:", error);
@@ -235,6 +238,13 @@ export default function MealPlanPage() {
           </div>
         )}
       </div>
+
+      <SuccessModal
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Meal Saved!"
+        description="Your scheduled meal has been added successfully."
+      />
     </div>
   );
 }

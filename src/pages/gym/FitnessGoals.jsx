@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import GymSidebar from "../../components/gym/GymSidebar";
+import SuccessModal from "../../components/SuccessModal";
 import {
   getGoals,
   createGoal,
@@ -26,6 +27,7 @@ export default function FitnessGoals() {
   // ── Goals ──────────────────────────────────────────────
   const [goals, setGoals] = useState([]);
   const [loadingGoals, setLoadingGoals] = useState(true);
+  const [showGoalSuccess, setShowGoalSuccess] = useState(false);
   const [goalForm, setGoalForm] = useState({
     goalName: "",
     targetValue: "",
@@ -35,6 +37,7 @@ export default function FitnessGoals() {
   // ── Habits ─────────────────────────────────────────────
   const [habits, setHabits] = useState([]);
   const [loadingHabits, setLoadingHabits] = useState(true);
+  const [showHabitSuccess, setShowHabitSuccess] = useState(false);
   const [habitInput, setHabitInput] = useState("");
   const [addingHabit, setAddingHabit] = useState(false);
 
@@ -66,6 +69,7 @@ export default function FitnessGoals() {
     try {
       await createGoal(goalForm);
       setGoalForm({ goalName: "", targetValue: "", deadline: "" });
+      setShowGoalSuccess(true);
       loadGoals();
     } catch (err) {
       console.error(err);
@@ -115,6 +119,7 @@ export default function FitnessGoals() {
       setAddingHabit(true);
       await createHabit({ habitName: habitInput.trim() });
       setHabitInput("");
+      setShowHabitSuccess(true);
       loadHabits();
     } catch (err) {
       console.error(err);
@@ -473,6 +478,20 @@ export default function FitnessGoals() {
           </div>
         )}
       </div>
+
+      <SuccessModal
+        open={showGoalSuccess}
+        onClose={() => setShowGoalSuccess(false)}
+        title="Goal Saved!"
+        description="Your fitness goal has been created successfully."
+      />
+
+      <SuccessModal
+        open={showHabitSuccess}
+        onClose={() => setShowHabitSuccess(false)}
+        title="Habit Added!"
+        description="Your daily fitness habit has been added successfully."
+      />
     </div>
   );
 }
