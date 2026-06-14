@@ -8,6 +8,11 @@ export default defineConfig({
     tailwindcss(),
   ],
 
+  // Pre-bundle recharts to avoid CJS/ESM interop issues in Vite dev mode
+  optimizeDeps: {
+    include: ['recharts'],
+  },
+
   // ⭐ ADD THIS BLOCK (FIX FOR sockjs global error)
   define: {
     global: 'window',

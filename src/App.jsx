@@ -17,9 +17,29 @@ import { PersistGate } from "redux-persist/integration/react";
 import "leaflet-geosearch/dist/geosearch.css";
 import TravelSections from "./pages/TravelSections";
 import WritingsPage from "./pages/WritingsPage"
+import GymDashboard from "./pages/gym/GymDashboard";
+import WorkoutLog from "./pages/gym/WorkoutLog";
+import FitnessGoals from "./pages/gym/FitnessGoals"
+import MealPlanPage from "./pages/gym/MealPlanPage";
+import FinanceDashboard from "./pages/finance/FinanceDashboard";
+import ExpenseTrackerPage from "./pages/finance/ExpenseTrackerPage";
+import SavingsTrackerPage from "./pages/finance/SavingsTrackerPage";
+import InvestmentTrackerPage from "./pages/finance/InvestmentTrackerPage";
+
+import PlannerDashboard from "./pages/planner/PlannerDashboard";
+import TaskManagerPage from "./pages/planner/TaskManagerPage";
+import CalendarPage from "./pages/planner/CalendarPage";
+import DeadlineTrackerPage from "./pages/planner/DeadlineTrackerPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import TravelSidebar from "./components/TravelSidebar";
+
+import SkillDashboard from "./pages/skills/SkillDashboard";
+import SubjectsPage from "./pages/skills/SubjectsPage";
+import StudySessionsPage from "./pages/skills/StudySessionsPage";
+import LearningJournalPage from "./pages/skills/LearningJournalPage";
+import SkillProgressPage from "./pages/skills/SkillProgressPage";
+import AchievementsPage from "./pages/skills/AchievementsPage";
 
 function App() {
   return (
@@ -42,6 +62,29 @@ function App() {
             <Route path="/manage-trip" element={<ProtectedRoute><ManageTrip /></ProtectedRoute>} />
             <Route path="/TravelSections" element={<ProtectedRoute><TravelSections /></ProtectedRoute>} />
             <Route path="/WritingsPage" element={<ProtectedRoute><WritingsPage /></ProtectedRoute>} />
+            <Route path="/gym/dashboard" element={<ProtectedRoute><GymDashboard /></ProtectedRoute>} />
+            <Route path="/gym/workouts" element={<ProtectedRoute><WorkoutLog /></ProtectedRoute>} />
+            <Route path="/gym/goals" element={<ProtectedRoute><FitnessGoals /></ProtectedRoute>} />
+            <Route path="/gym/meals" element={<ProtectedRoute><MealPlanPage /></ProtectedRoute>} />
+            <Route path="/finance/dashboard" element={<ProtectedRoute><FinanceDashboard /></ProtectedRoute>} />
+            <Route path="/finance/expenses" element={<ProtectedRoute><ExpenseTrackerPage /></ProtectedRoute>} />
+            <Route path="/finance/savings" element={<ProtectedRoute><SavingsTrackerPage /></ProtectedRoute>} />
+            <Route path="/finance/investments" element={<ProtectedRoute><InvestmentTrackerPage /></ProtectedRoute>} />
+
+            <Route path="/planner" element={<ProtectedRoute><PlannerDashboard /></ProtectedRoute>} />
+            <Route path="/planner/tasks" element={<ProtectedRoute><TaskManagerPage /></ProtectedRoute>} />
+            <Route path="/planner/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+            <Route path="/planner/deadlines" element={<ProtectedRoute><DeadlineTrackerPage /></ProtectedRoute>} />
+
+            <Route path="/skills/dashboard" element={<ProtectedRoute><SkillDashboard /></ProtectedRoute>} />
+            <Route path="/skills/subjects" element={<ProtectedRoute><SubjectsPage /></ProtectedRoute>} />
+            <Route path="/skills/study-sessions" element={<ProtectedRoute><StudySessionsPage /></ProtectedRoute>} />
+            <Route path="/skills/journal" element={<ProtectedRoute><LearningJournalPage /></ProtectedRoute>} />
+            <Route path="/skills/progress" element={<ProtectedRoute><SkillProgressPage /></ProtectedRoute>} />
+            <Route path="/skills/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
+
+
+
           </Routes>
         </BrowserRouter>
       </PersistGate>

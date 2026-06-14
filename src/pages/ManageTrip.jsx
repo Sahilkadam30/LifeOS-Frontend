@@ -3,178 +3,82 @@ import API from "../api";
 import MapView from "../components/MapView";
 import { useNavigate } from "react-router-dom";
 import TravelSidebar from "../components/TravelSidebar";
-
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMapEvents,
-} from "react-leaflet";
-
+import { FiArrowLeft, FiPlus, FiTrash2, FiMapPin } from "react-icons/fi";
 import L from "leaflet";
-
 import "leaflet/dist/leaflet.css";
 
 export default function ManageTrip() {
   const navigate = useNavigate();
-
-  const [activeTab, setActiveTab] =
-    useState("visited");
+  const [activeTab, setActiveTab] = useState("visited");
 
   // ================= VISITED =================
-  const [visitedForm, setVisitedForm] =
-    useState({
-      placeName: "",
-      type: "",
-      visitedOn: "",
-      city: "",
-      latitude: "",
-      longitude: "",
-    });
+  const [visitedForm, setVisitedForm] = useState({
+    placeName: "",
+    type: "",
+    visitedOn: "",
+    city: "",
+    latitude: "",
+    longitude: "",
+  });
 
   // ================= WISHLIST =================
-  const [wishlistForm, setWishlistForm] =
-    useState({
-      placeName: "",
-      planDate: "",
-      city: "",
-      latitude: "",
-      longitude: "",
-    });
+  const [wishlistForm, setWishlistForm] = useState({
+    placeName: "",
+    planDate: "",
+    city: "",
+    latitude: "",
+    longitude: "",
+  });
 
   // ================= SECTION =================
-  const [sectionTitle, setSectionTitle] =
-    useState("");
-
-  const [description, setDescription] =
-    useState("");
-
-  const [selectedColor, setSelectedColor] =
-    useState("#6C4DFF");
-
+  const [sectionTitle, setSectionTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedColor, setSelectedColor] = useState("#2563EB");
   const [places, setPlaces] = useState([]);
 
   const sectionColors = [
-    "#6C4DFF",
-    "#22C55E",
-    "#F97316",
-    "#EC4899",
-    "#0EA5E9",
-    "#EAB308",
+    "#2563EB", // Primary Blue
+    "#16A34A", // Success Green
+    "#F97316", // Orange
+    "#EF4444", // Danger Red
+    "#8B5CF6", // Purple
+    "#EC4899", // Pink
+    "#0EA5E9", // Sky Blue
+    "#14B8A6", // Teal
+    "#EAB308", // Yellow
+    "#F43F5E", // Rose
   ];
 
-  // ================= SECTION ICON =================
-  function createColorIcon(color) {
-    return new L.DivIcon({
-      className: "",
-      html: `
-        <div style="
-          background:${color};
-          width:18px;
-          height:18px;
-          border-radius:50%;
-          border:3px solid white;
-          box-shadow:0 2px 8px rgba(0,0,0,0.3);
-        "></div>
-      `,
-      iconSize: [18, 18],
-    });
-  }
-
-  // ================= MAP CLICK FOR SECTION =================
-  function MapClickHandler({ setPlaces }) {
-    useMapEvents({
-      async click(e) {
-        const { lat, lng } = e.latlng;
-
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-          );
-
-          const data =
-            await response.json();
-
-          const placeName =
-            data.name ||
-            data.address?.tourism ||
-            data.address?.road ||
-            data.display_name?.split(",")[0] ||
-            "Unknown Place";
-
-          const stateName =
-            data.address?.state ||
-            data.address?.city ||
-            data.address?.town ||
-            data.address?.village ||
-            "";
-
-          setPlaces((prev) => [
-            ...prev,
-            {
-              placeName,
-              stateName,
-              latitude: lat,
-              longitude: lng,
-              visited: false,
-            },
-          ]);
-        } catch (err) {
-          console.log(err);
-        }
-      },
-    });
-
-    return null;
-  }
-
   // ================= MAP CLICK =================
-  const setCoordinates = ({
-    latitude,
-    longitude,
-    placeName,
-    city,
-  }) => {
+  const setCoordinates = ({ latitude, longitude, placeName, city }) => {
     if (activeTab === "visited") {
       setVisitedForm({
         ...visitedForm,
         latitude,
         longitude,
-
-        placeName:
-          visitedForm.placeName ||
-          placeName,
-
-        city:
-          visitedForm.city || city,
+        placeName: visitedForm.placeName || placeName,
+        city: visitedForm.city || city,
       });
     } else {
       setWishlistForm({
         ...wishlistForm,
         latitude,
         longitude,
-
-        placeName:
-          wishlistForm.placeName ||
-          placeName,
-
-        city:
-          wishlistForm.city || city,
+        placeName: wishlistForm.placeName || placeName,
+        city: wishlistForm.city || city,
       });
     }
   };
 
   // ================= SAVE VISITED =================
   const saveVisited = async () => {
+    if (!visitedForm.placeName.trim() || !visitedForm.latitude || !visitedForm.longitude) {
+      alert("Please enter place name and pick a location on map");
+      return;
+    }
     try {
-      await API.post(
-        "/visited",
-        visitedForm
-      );
-
-      alert("Visited Place Added");
-
+      await API.post("/visited", visitedForm);
+      alert("Visited Place Added Successfully");
       navigate("/travel");
     } catch (err) {
       console.log(err);
@@ -183,14 +87,13 @@ export default function ManageTrip() {
 
   // ================= SAVE WISHLIST =================
   const saveWishlist = async () => {
+    if (!wishlistForm.placeName.trim() || !wishlistForm.latitude || !wishlistForm.longitude) {
+      alert("Please enter place name and pick a location on map");
+      return;
+    }
     try {
-      await API.post(
-        "/wishlist",
-        wishlistForm
-      );
-
-      alert("Wishlist Place Added");
-
+      await API.post("/wishlist", wishlistForm);
+      alert("Wishlist Place Added Successfully");
       navigate("/travel");
     } catch (err) {
       console.log(err);
@@ -198,551 +101,435 @@ export default function ManageTrip() {
   };
 
   // ================= SAVE SECTION =================
-  const handleSaveSection =
-    async () => {
-      if (!sectionTitle.trim()) {
-        alert(
-          "Please enter section title"
-        );
-        return;
-      }
+  const handleSaveSection = async () => {
+    if (!sectionTitle.trim()) {
+      alert("Please enter section title");
+      return;
+    }
 
-      if (places.length === 0) {
-        alert(
-          "Please add at least one place"
-        );
-        return;
-      }
+    if (places.length === 0) {
+      alert("Please add at least one place by clicking on the map");
+      return;
+    }
 
-      try {
-        await API.post("/sections", {
-          title: sectionTitle,
-          description,
-          color: selectedColor,
+    try {
+      await API.post("/sections", {
+        title: sectionTitle,
+        description,
+        color: selectedColor,
+        places: places.filter((p) => p.latitude && p.longitude),
+      });
 
-          places: places.filter(
-            (p) =>
-              p.latitude &&
-              p.longitude
-          ),
-        });
-
-        alert("Section Created");
-
-        setSectionTitle("");
-        setDescription("");
-        setSelectedColor("#6C4DFF");
-        setPlaces([]);
-
-      } catch (err) {
-        console.log(err);
-      }
-    };
+      alert("Travel Section Created Successfully");
+      setSectionTitle("");
+      setDescription("");
+      setSelectedColor("#2563EB");
+      setPlaces([]);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#F8F6F4] font-['Inter'] flex">
-      <TravelSidebar />
-      <div className="flex-1 px-5 md:px-8 py-6">
+    <div className="min-h-screen bg-[#F5F7FA] font-['Inter',_sans-serif] flex">
+      {/* SIDEBAR */}
+      <TravelSidebar activePage="dashboard" />
 
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      {/* MAIN CONTENT */}
+      <div className="flex-1 p-6 md:p-10 max-w-[1600px] mx-auto w-full">
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-[32px] font-bold text-[#1E293B] tracking-tight leading-none mb-2">
+              Manage Journeys
+            </h1>
+            <p className="text-[#64748B] text-[15px]">
+              Organize your visited locations, wishlist items, and custom travel collections.
+            </p>
+          </div>
 
-        <div>
-          <h1 className="text-4xl font-['Playfair_Display'] text-[#222]">
-            Manage Journeys
-          </h1>
-
-          <p className="text-[#777] text-sm mt-2">
-            Organize trips, wishlist and
-            travel collections beautifully.
-          </p>
+          <button
+            onClick={() => navigate("/travel")}
+            className="flex items-center justify-center gap-2 border border-[#E2E8F0] hover:bg-white bg-slate-50 text-[#1E293B] font-medium px-5 py-3 rounded-[10px] text-[15px] shadow-sm hover:shadow transition-all duration-300"
+          >
+            <FiArrowLeft className="text-lg" />
+            <span>Dashboard</span>
+          </button>
         </div>
 
-        <button
-          onClick={() =>
-            navigate("/travel")
-          }
-          className="bg-[#6C4DFF] text-white px-6 py-4 rounded-3xl shadow-sm text-sm hover:scale-105 transition-all"
-        >
-          Back To Dashboard
-        </button>
-      </div>
-
-      {/* TABS */}
-      <div className="flex gap-4 mb-8 flex-wrap">
-
-        <button
-          onClick={() =>
-            setActiveTab("visited")
-          }
-          className={`px-6 py-4 rounded-3xl text-sm transition-all ${
-            activeTab === "visited"
-              ? "bg-[#6C4DFF] text-white shadow-sm"
-              : "bg-white text-[#666]"
-          }`}
-        >
-          Add Visited
-        </button>
-
-        <button
-          onClick={() =>
-            setActiveTab("wishlist")
-          }
-          className={`px-6 py-4 rounded-3xl text-sm transition-all ${
-            activeTab === "wishlist"
-              ? "bg-[#6C4DFF] text-white shadow-sm"
-              : "bg-white text-[#666]"
-          }`}
-        >
-          Add Wishlist
-        </button>
-
-        <button
-          onClick={() =>
-            setActiveTab("section")
-          }
-          className={`px-6 py-4 rounded-3xl text-sm transition-all ${
-            activeTab === "section"
-              ? "bg-[#6C4DFF] text-white shadow-sm"
-              : "bg-white text-[#666]"
-          }`}
-        >
-          Create Section
-        </button>
-      </div>
-
-      {/* ================= VISITED ================= */}
-      {activeTab === "visited" && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-          {/* FORM */}
-          <div className="bg-white rounded-[32px] p-8 shadow-sm">
-
-            <h2 className="text-3xl font-['Playfair_Display'] text-[#222] mb-6">
-              Add Visited Place
-            </h2>
-
-            <div className="space-y-5">
-
-              <input
-                placeholder="Place Name"
-                value={
-                  visitedForm.placeName
-                }
-                onChange={(e) =>
-                  setVisitedForm({
-                    ...visitedForm,
-                    placeName:
-                      e.target.value,
-                  })
-                }
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                placeholder="Type"
-                value={visitedForm.type}
-                onChange={(e) =>
-                  setVisitedForm({
-                    ...visitedForm,
-                    type: e.target.value,
-                  })
-                }
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                type="date"
-                onChange={(e) =>
-                  setVisitedForm({
-                    ...visitedForm,
-                    visitedOn:
-                      e.target.value,
-                  })
-                }
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                placeholder="City"
-                value={visitedForm.city}
-                onChange={(e) =>
-                  setVisitedForm({
-                    ...visitedForm,
-                    city: e.target.value,
-                  })
-                }
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                placeholder="Latitude"
-                value={
-                  visitedForm.latitude
-                }
-                readOnly
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                placeholder="Longitude"
-                value={
-                  visitedForm.longitude
-                }
-                readOnly
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <button
-                onClick={saveVisited}
-                className="bg-[#6C4DFF] text-white w-full py-4 rounded-3xl text-base shadow-sm"
-              >
-                Save Visited Place
-              </button>
-            </div>
-          </div>
-
-          {/* MAP */}
-          <div className="bg-white rounded-[32px] p-5 shadow-sm h-[750px]">
-
-            <h2 className="text-3xl font-['Playfair_Display'] text-[#222] mb-5">
-              Select On Map
-            </h2>
-
-            <div className="h-[650px] rounded-[28px] overflow-hidden">
-              <MapView
-                visited={[]}
-                wishlist={[]}
-                setCoordinates={
-                  setCoordinates
-                }
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================= WISHLIST ================= */}
-      {activeTab === "wishlist" && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-          {/* FORM */}
-          <div className="bg-white rounded-[32px] p-8 shadow-sm">
-
-            <h2 className="text-3xl font-['Playfair_Display'] text-[#222] mb-6">
-              Add Wishlist Place
-            </h2>
-
-            <div className="space-y-5">
-
-              <input
-                placeholder="Place Name"
-                value={
-                  wishlistForm.placeName
-                }
-                onChange={(e) =>
-                  setWishlistForm({
-                    ...wishlistForm,
-                    placeName:
-                      e.target.value,
-                  })
-                }
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                type="date"
-                onChange={(e) =>
-                  setWishlistForm({
-                    ...wishlistForm,
-                    planDate:
-                      e.target.value,
-                  })
-                }
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                placeholder="City"
-                value={wishlistForm.city}
-                onChange={(e) =>
-                  setWishlistForm({
-                    ...wishlistForm,
-                    city: e.target.value,
-                  })
-                }
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                placeholder="Latitude"
-                value={
-                  wishlistForm.latitude
-                }
-                readOnly
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <input
-                placeholder="Longitude"
-                value={
-                  wishlistForm.longitude
-                }
-                readOnly
-                className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-              />
-
-              <button
-                onClick={saveWishlist}
-                className="bg-[#6C4DFF] text-white w-full py-4 rounded-3xl text-base shadow-sm"
-              >
-                Save Wishlist Place
-              </button>
-            </div>
-          </div>
-
-          {/* MAP */}
-          <div className="bg-white rounded-[32px] p-5 shadow-sm h-[750px]">
-
-            <h2 className="text-3xl font-['Playfair_Display'] text-[#222] mb-5">
-              Select On Map
-            </h2>
-
-            <div className="h-[650px] rounded-[28px] overflow-hidden">
-              <MapView
-                visited={[]}
-                wishlist={[]}
-                setCoordinates={
-                  setCoordinates
-                }
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================= CREATE SECTION ================= */}
-      
-      {/* ================= CREATE SECTION ================= */}
-{activeTab === "section" && (
-  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-    {/* FORM */}
-    <div className="bg-white rounded-[32px] p-8 shadow-sm">
-
-      <h2 className="text-3xl font-['Playfair_Display'] text-[#222] mb-2">
-        Create Section
-      </h2>
-
-      <p className="text-[#777] text-sm mb-6">
-        Build custom travel collections.
-      </p>
-
-      <div className="space-y-5">
-
-        <input
-          placeholder="Section Title"
-          value={sectionTitle}
-          onChange={(e) =>
-            setSectionTitle(e.target.value)
-          }
-          className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base"
-        />
-
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) =>
-            setDescription(e.target.value)
-          }
-          rows={4}
-          className="w-full bg-[#F8F6F4] rounded-3xl px-5 py-4 outline-none text-base resize-none"
-        />
-
-        {/* COLORS */}
-        <div>
-
-          <p className="text-sm text-[#666] mb-4">
-            Choose Section Color
-          </p>
-
-          <div className="flex gap-4 flex-wrap">
-
-            {sectionColors.map((color) => (
-
-              <button
-                key={color}
-                onClick={() =>
-                  setSelectedColor(color)
-                }
-                className={`w-10 h-10 rounded-full border-4 transition-all ${
-                  selectedColor === color
-                    ? "border-black scale-110"
-                    : "border-white"
-                }`}
-                style={{
-                  background: color,
-                }}
-              />
-
-            ))}
-
-          </div>
+        {/* TABS */}
+        <div className="flex gap-2 mb-8 bg-white p-1 rounded-[12px] border border-[#E2E8F0] max-w-md">
+          {[
+            { id: "visited", label: "Visited" },
+            { id: "wishlist", label: "Wishlist" },
+            { id: "section", label: "Collections" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-2.5 rounded-[10px] text-[14px] font-semibold transition-all duration-200 ${
+                activeTab === tab.id
+                  ? "bg-[#2563EB] text-white shadow-sm"
+                  : "text-[#64748B] hover:text-[#1E293B] hover:bg-[#F5F7FA]"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* DESTINATIONS */}
-        <div className="mt-6">
+        {/* ================= VISITED ================= */}
+        {activeTab === "visited" && (
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            {/* FORM */}
+            <div className="xl:col-span-5 bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm flex flex-col gap-5">
+              <div>
+                <h2 className="text-[20px] font-semibold text-[#1E293B] mb-1">
+                  Add Visited Place
+                </h2>
+                <p className="text-[#64748B] text-[13px]">
+                  Fill out the form below or pick coordinates on the map.
+                </p>
+              </div>
 
-          <div className="flex items-center justify-between mb-4">
-
-            <h3 className="text-xl font-['Playfair_Display'] text-[#222]">
-              Added Destinations
-            </h3>
-
-            <span className="text-sm text-[#777]">
-              {places.length} Places
-            </span>
-
-          </div>
-
-          {places.length === 0 ? (
-
-            <div className="bg-[#F8F6F4] rounded-3xl p-8 text-center">
-
-              <p className="text-[#888] text-sm">
-                Search or click on the map to add destinations
-              </p>
-
-            </div>
-
-          ) : (
-
-            <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
-
-              {places.map((place, index) => (
-
-                <div
-                  key={index}
-                  className="bg-[#F8F6F4] rounded-3xl p-5 border border-[#ECECEC]"
-                >
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <h4 className="text-lg font-semibold text-[#222]">
-                        {place.placeName}
-                      </h4>
-
-                      <p className="text-sm text-[#777] mt-1">
-                        {place.stateName}
-                      </p>
-
-                      <div className="flex gap-2 mt-3 flex-wrap">
-
-                        <span className="bg-white px-3 py-1 rounded-full text-xs text-[#666]">
-                          Lat: {Number(place.latitude).toFixed(4)}
-                        </span>
-
-                        <span className="bg-white px-3 py-1 rounded-full text-xs text-[#666]">
-                          Lng: {Number(place.longitude).toFixed(4)}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                    <button
-                      onClick={() => {
-
-                        const updated =
-                          places.filter(
-                            (_, i) => i !== index
-                          );
-
-                        setPlaces(updated);
-
-                      }}
-                      className="text-red-500 text-sm hover:underline"
-                    >
-                      Remove
-                    </button>
-
-                  </div>
-
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                    Place Name
+                  </label>
+                  <input
+                    placeholder="E.g., Eiffel Tower"
+                    value={visitedForm.placeName}
+                    onChange={(e) => setVisitedForm({ ...visitedForm, placeName: e.target.value })}
+                    className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                  />
                 </div>
 
-              ))}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                      Type
+                    </label>
+                    <input
+                      placeholder="E.g., Museum"
+                      value={visitedForm.type}
+                      onChange={(e) => setVisitedForm({ ...visitedForm, type: e.target.value })}
+                      className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                    />
+                  </div>
 
+                  <div className="space-y-1">
+                    <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                      Visited On
+                    </label>
+                    <input
+                      type="date"
+                      value={visitedForm.visitedOn}
+                      onChange={(e) => setVisitedForm({ ...visitedForm, visitedOn: e.target.value })}
+                      className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                    City / State
+                  </label>
+                  <input
+                    placeholder="E.g., Paris"
+                    value={visitedForm.city}
+                    onChange={(e) => setVisitedForm({ ...visitedForm, city: e.target.value })}
+                    className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-[10px] border border-[#E2E8F0]">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Latitude</span>
+                    <span className="text-[#1E293B] text-[14px] font-mono">{visitedForm.latitude || "Click map..."}</span>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Longitude</span>
+                    <span className="text-[#1E293B] text-[14px] font-mono">{visitedForm.longitude || "Click map..."}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={saveVisited}
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium py-3 rounded-[10px] text-[15px] shadow-sm hover:shadow transition-all duration-200 mt-2"
+                >
+                  Save Visited Place
+                </button>
+              </div>
             </div>
 
-          )}
+            {/* MAP */}
+            <div className="xl:col-span-7 bg-white border border-[#E2E8F0] rounded-[16px] p-5 shadow-sm min-h-[550px] flex flex-col">
+              <div className="mb-4">
+                <h2 className="text-[20px] font-semibold text-[#1E293B] mb-1">
+                  Select On Map
+                </h2>
+                <p className="text-[#64748B] text-[13px]">
+                  Click anywhere on the map to autofill location coordinates and city names.
+                </p>
+              </div>
 
-        </div>
+              <div className="flex-1 min-h-[450px] rounded-[10px] overflow-hidden border border-[#E2E8F0]">
+                <MapView visited={[]} wishlist={[]} setCoordinates={setCoordinates} />
+              </div>
+            </div>
+          </div>
+        )}
 
-        <button
-          onClick={handleSaveSection}
-          className="bg-[#6C4DFF] text-white w-full py-4 rounded-3xl text-base shadow-sm"
-        >
-          Save Section
-        </button>
+        {/* ================= WISHLIST ================= */}
+        {activeTab === "wishlist" && (
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            {/* FORM */}
+            <div className="xl:col-span-5 bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm flex flex-col gap-5">
+              <div>
+                <h2 className="text-[20px] font-semibold text-[#1E293B] mb-1">
+                  Add Wishlist Place
+                </h2>
+                <p className="text-[#64748B] text-[13px]">
+                  Plan your dream locations and pin them on the map.
+                </p>
+              </div>
 
-      </div>
-    </div>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                    Place Name
+                  </label>
+                  <input
+                    placeholder="E.g., Taj Mahal"
+                    value={wishlistForm.placeName}
+                    onChange={(e) => setWishlistForm({ ...wishlistForm, placeName: e.target.value })}
+                    className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                  />
+                </div>
 
-    {/* MAP */}
-    <div className="bg-white rounded-[32px] p-5 shadow-sm h-[850px]">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                      Target Date
+                    </label>
+                    <input
+                      type="date"
+                      value={wishlistForm.planDate}
+                      onChange={(e) => setWishlistForm({ ...wishlistForm, planDate: e.target.value })}
+                      className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                    />
+                  </div>
 
-      <h2 className="text-3xl font-['Playfair_Display'] text-[#222] mb-2">
-        Add Destinations
-      </h2>
+                  <div className="space-y-1">
+                    <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                      City / State
+                    </label>
+                    <input
+                      placeholder="E.g., Agra"
+                      value={wishlistForm.city}
+                      onChange={(e) => setWishlistForm({ ...wishlistForm, city: e.target.value })}
+                      className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                    />
+                  </div>
+                </div>
 
-      <p className="text-sm text-[#777] mb-5">
-        Search or click anywhere on map to add places.
-      </p>
+                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-[10px] border border-[#E2E8F0]">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Latitude</span>
+                    <span className="text-[#1E293B] text-[14px] font-mono">{wishlistForm.latitude || "Click map..."}</span>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Longitude</span>
+                    <span className="text-[#1E293B] text-[14px] font-mono">{wishlistForm.longitude || "Click map..."}</span>
+                  </div>
+                </div>
 
-      <div className="h-[720px] rounded-[28px] overflow-hidden border border-[#ECECEC]">
+                <button
+                  onClick={saveWishlist}
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium py-3 rounded-[10px] text-[15px] shadow-sm hover:shadow transition-all duration-200 mt-2"
+                >
+                  Save Wishlist Place
+                </button>
+              </div>
+            </div>
 
-        <MapView
-          visited={[]}
-          wishlist={[]}
-          sections={[]}
-          setCoordinates={({
-            latitude,
-            longitude,
-            placeName,
-            city,
-          }) => {
+            {/* MAP */}
+            <div className="xl:col-span-7 bg-white border border-[#E2E8F0] rounded-[16px] p-5 shadow-sm min-h-[550px] flex flex-col">
+              <div className="mb-4">
+                <h2 className="text-[20px] font-semibold text-[#1E293B] mb-1">
+                  Select On Map
+                </h2>
+                <p className="text-[#64748B] text-[13px]">
+                  Click anywhere on the map to pick wishlist coordinates.
+                </p>
+              </div>
 
-            const alreadyExists =
-              places.some(
-                (p) =>
-                  Number(p.latitude).toFixed(4) ===
-                    Number(latitude).toFixed(4) &&
-                  Number(p.longitude).toFixed(4) ===
-                    Number(longitude).toFixed(4)
-              );
+              <div className="flex-1 min-h-[450px] rounded-[10px] overflow-hidden border border-[#E2E8F0]">
+                <MapView visited={[]} wishlist={[]} setCoordinates={setCoordinates} />
+              </div>
+            </div>
+          </div>
+        )}
 
-            if (alreadyExists) return;
+        {/* ================= CREATE SECTION ================= */}
+        {activeTab === "section" && (
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            {/* FORM */}
+            <div className="xl:col-span-5 bg-white border border-[#E2E8F0] rounded-[16px] p-6 shadow-sm flex flex-col gap-5">
+              <div>
+                <h2 className="text-[20px] font-semibold text-[#1E293B] mb-1">
+                  Create Collection
+                </h2>
+                <p className="text-[#64748B] text-[13px]">
+                  Group destinations into a custom-colored travel bucket list.
+                </p>
+              </div>
 
-            setPlaces((prev) => [
-              ...prev,
-              {
-                placeName,
-                stateName: city,
-                latitude,
-                longitude,
-                visited: false,
-              },
-            ]);
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                    Collection Title
+                  </label>
+                  <input
+                    placeholder="E.g., EuroTrip 2026"
+                    value={sectionTitle}
+                    onChange={(e) => setSectionTitle(e.target.value)}
+                    className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B]"
+                  />
+                </div>
 
-          }}
-        />
+                <div className="space-y-1">
+                  <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                    Description
+                  </label>
+                  <textarea
+                    placeholder="Enter details..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={2}
+                    className="w-full bg-white border border-[#E2E8F0] rounded-[10px] px-4 py-2.5 outline-none text-[15px] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/30 transition-all text-[#1E293B] resize-none"
+                  />
+                </div>
 
-      </div>
-    </div>
-  </div>
-)}
+                {/* COLORS */}
+                <div className="space-y-2">
+                  <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider block">
+                    Accent Color
+                  </label>
+                  <div className="flex gap-2 flex-wrap pt-0.5">
+                    {sectionColors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`w-7 h-7 rounded-full border-2 transition-all duration-200 ${
+                          selectedColor === color
+                            ? "border-slate-800 scale-110 shadow-sm"
+                            : "border-transparent hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* DESTINATIONS */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider">
+                      Added Destinations
+                    </label>
+                    <span className="text-[11px] font-bold bg-slate-100 text-[#64748B] px-2 py-0.5 rounded-[6px]">
+                      {places.length} Places
+                    </span>
+                  </div>
+
+                  {places.length === 0 ? (
+                    <div className="border border-dashed border-[#E2E8F0] rounded-[10px] p-6 text-center bg-slate-50">
+                      <p className="text-[#94A3B8] text-[13px]">
+                        Click on the map to add cities to this collection
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                      {places.map((place, index) => (
+                        <div
+                          key={index}
+                          className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[10px] p-3 flex justify-between items-center"
+                        >
+                          <div>
+                            <h4 className="text-[14px] font-semibold text-[#1E293B]">
+                              {place.placeName}
+                            </h4>
+                            <p className="text-[12px] text-[#64748B] mt-0.5">
+                              {place.stateName}
+                            </p>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              const updated = places.filter((_, i) => i !== index);
+                              setPlaces(updated);
+                            }}
+                            className="text-[#64748B] hover:text-[#EF4444] p-1.5 rounded-full hover:bg-slate-200/50 transition-colors"
+                          >
+                            <FiTrash2 className="text-[15px]" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleSaveSection}
+                  className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium py-3 rounded-[10px] text-[15px] shadow-sm hover:shadow transition-all duration-200 mt-2"
+                >
+                  Create Collection
+                </button>
+              </div>
+            </div>
+
+            {/* MAP */}
+            <div className="xl:col-span-7 bg-white border border-[#E2E8F0] rounded-[16px] p-5 shadow-sm min-h-[550px] flex flex-col">
+              <div className="mb-4">
+                <h2 className="text-[20px] font-semibold text-[#1E293B] mb-1">
+                  Add Places to Collection
+                </h2>
+                <p className="text-[#64748B] text-[13px]">
+                  Each place you click on the map will be added to the checklist above.
+                </p>
+              </div>
+
+              <div className="flex-1 min-h-[450px] rounded-[10px] overflow-hidden border border-[#E2E8F0]">
+                <MapView
+                  visited={[]}
+                  wishlist={[]}
+                  sections={[]}
+                  setCoordinates={({ latitude, longitude, placeName, city }) => {
+                    const alreadyExists = places.some(
+                      (p) =>
+                        Number(p.latitude).toFixed(4) === Number(latitude).toFixed(4) &&
+                        Number(p.longitude).toFixed(4) === Number(longitude).toFixed(4)
+                    );
+                    if (alreadyExists) return;
+
+                    setPlaces((prev) => [
+                      ...prev,
+                      {
+                        placeName,
+                        stateName: city || "Unknown City",
+                        latitude,
+                        longitude,
+                        visited: false,
+                      },
+                    ]);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
