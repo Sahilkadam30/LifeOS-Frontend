@@ -1,6 +1,6 @@
 import React from "react";
 
-const ChatInput =  ({
+const ChatInput = ({
     message,
     setMessage,
     sendMessage,
@@ -9,16 +9,16 @@ const ChatInput =  ({
 
     const handleKeyPress = async (e) => {
         if (e.key === "Enter" && !loading) {
-           await sendMessage();
+            await sendMessage();
         }
     };
 
     return (
-        <div className="d-flex gap-2">
+        <div className="chatbot-input-area">
             <input
                 type="text"
-                className="form-control"
-                placeholder="Ask LifeOS AI..."
+                className="chatbot-input"
+                placeholder="Ask LifeOS AI anything..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -26,11 +26,12 @@ const ChatInput =  ({
             />
 
             <button
-                className="btn btn-primary"
+                className="chatbot-send-btn"
                 onClick={sendMessage}
-                disabled={loading}
+                disabled={loading || !message.trim()}
+                aria-label="Send message"
             >
-                {loading ? "..." : "Send"}
+                ➤
             </button>
         </div>
     );

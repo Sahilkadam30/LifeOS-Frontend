@@ -1,63 +1,64 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
+import ThinkingIndicator from "./ThinkingIndicator";
 
 const ChatWindow = ({
     messages,
     message,
     setMessage,
     sendMessage,
-    loading
+    loading,
+    onClose
 }) => {
+    const messagesEndRef = useRef(null);
+
+    // Auto-scroll to the latest message
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, loading]);
 
     return (
-        <div
-            className="card shadow-lg border-0"
-            style={{
-                position: "fixed",
-                bottom: "90px",
-                right: "20px",
-                width: "400px",
-                height: "550px",
-                zIndex: 9999,
-                borderRadius: "20px"
-            }}
-        >
-            <div className="card-header bg-primary text-white fw-bold">
-                🤖 LifeOS Assistant
+        <div className="chatbot-window">
+            {/* ── Header ── */}
+            <div className="chatbot-header">
+                <div className="chatbot-header-avatar">✨</div>
+                <div className="chatbot-header-info">
+                    <div className="chatbot-header-title">LifeOS Assistant</div>
+                    <div className="chatbot-header-status">
+                        <span className="chatbot-header-status-dot"></span>
+                        {loading ? "Thinking..." : "Online"}
+                    </div>
+                </div>
+                <button className="chatbot-close-btn" onClick={onClose} aria-label="Close chat">
+                    ✕
+                </button>
             </div>
 
-            <div
-                className="card-body"
-                style={{
-                    overflowY: "auto",
-                    backgroundColor: "#f8f9fa"
-                }}
-            >
+            {/* ── Messages ── */}
+            <div className="chatbot-messages">
                 {messages.map((msg, index) => (
                     <ChatMessage
                         key={index}
                         sender={msg.sender}
                         text={msg.text}
+                        timestamp={msg.timestamp}
                     />
                 ))}
 
-                {loading && (
-                    <ChatMessage
-                        sender="ai"
-                        text="Thinking..."
-                    />
-                )}
+                {/* Thinking dots when AI is processing */}
+                {loading && <ThinkingIndicator />}
+
+                <div ref={messagesEndRef} />
             </div>
 
-            <div className="card-footer">
-                <ChatInput
-                    message={message}
-                    setMessage={setMessage}
-                    sendMessage={sendMessage}
-                    loading={loading}
-                />
-            </div>
+            {/* ── Input ── */}
+            <ChatInput
+                message={message}
+                setMessage={setMessage}
+                sendMessage={sendMessage}
+                loading={loading}
+            />
         </div>
     );
 };
