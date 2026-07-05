@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import GymSidebar from "../../components/gym/GymSidebar";
 import SuccessModal from "../../components/SuccessModal";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import {
   getGoals,
   createGoal,
@@ -33,6 +34,11 @@ export default function FitnessGoals() {
     targetValue: "",
     deadline: "",
   });
+
+  // ── Deletion Modal State ──────────────────────────────
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState(null); // "goal" | "habit"
+  const [idToDelete, setIdToDelete] = useState(null);
 
   // ── Habits ─────────────────────────────────────────────
   const [habits, setHabits] = useState([]);
@@ -88,15 +94,10 @@ export default function FitnessGoals() {
     }
   };
 
-  const removeGoal = async (id) => {
-    if (confirm("Are you sure you want to delete this goal?")) {
-      try {
-        await deleteGoal(id);
-        loadGoals();
-      } catch (err) {
-        console.error(err);
-      }
-    }
+  const removeGoal = (id) => {
+    setIdToDelete(id);
+    setDeleteType("goal");
+    setIsDeleteModalOpen(true);
   };
 
   // ── Habit handlers ─────────────────────────────────────
@@ -137,15 +138,29 @@ export default function FitnessGoals() {
     }
   };
 
-  const removeHabit = async (e, id) => {
+  const removeHabit = (e, id) => {
     e.stopPropagation();
-    if (confirm("Are you sure you want to delete this daily habit?")) {
-      try {
-        await deleteHabit(id);
+    setIdToDelete(id);
+    setDeleteType("habit");
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!idToDelete || !deleteType) return;
+    try {
+      if (deleteType === "goal") {
+        await deleteGoal(idToDelete);
+        loadGoals();
+      } else {
+        await deleteHabit(idToDelete);
         loadHabits();
-      } catch (err) {
-        console.error(err);
       }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setIdToDelete(null);
+      setDeleteType(null);
     }
   };
 
@@ -491,6 +506,18 @@ export default function FitnessGoals() {
         onClose={() => setShowHabitSuccess(false)}
         title="Habit Added!"
         description="Your daily fitness habit has been added successfully."
+      />
+
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setIdToDelete(null); setDeleteType(null); }}
+        onConfirm={handleConfirmDelete}
+        title={deleteType === "goal" ? "Delete Fitness Goal?" : "Delete Daily Habit?"}
+        description={
+          deleteType === "goal"
+            ? "Are you sure you want to delete this fitness goal? This action cannot be undone."
+            : "Are you sure you want to delete this daily routine habit? This action cannot be undone."
+        }
       />
     </div>
   );

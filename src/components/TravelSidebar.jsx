@@ -36,9 +36,6 @@ export default function TravelSidebar({ activePage, setActivePage }) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: FiCompass },
     { id: "map", label: "Map View", icon: FiMap },
-    { id: "visited", label: "Visited Trips", icon: FiAward },
-    { id: "wishlist", label: "Wishlist", icon: FiHeart },
-    { id: "stats", label: "Statistics", icon: FiBarChart2 },
   ];
 
   return (

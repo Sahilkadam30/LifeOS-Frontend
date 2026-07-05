@@ -40,6 +40,7 @@ import StudySessionsPage from "./pages/skills/StudySessionsPage";
 import LearningJournalPage from "./pages/skills/LearningJournalPage";
 import SkillProgressPage from "./pages/skills/SkillProgressPage";
 import AchievementsPage from "./pages/skills/AchievementsPage";
+import LifeOSChatbot from "./components/chatbot/LifeOSChatbot";
 
 function App() {
   return (
@@ -86,6 +87,7 @@ function App() {
 
 
           </Routes>
+          <LifeOSChatbot />
         </BrowserRouter>
       </PersistGate>
     </Provider>

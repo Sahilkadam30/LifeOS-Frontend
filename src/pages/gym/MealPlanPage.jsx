@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import GymSidebar from "../../components/gym/GymSidebar";
 import SuccessModal from "../../components/SuccessModal";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import { getMeals, createMeal, deleteMeal } from "../../services/gymService";
 import { UtensilsCrossed, Trash2, Plus } from "lucide-react";
 
@@ -15,6 +16,8 @@ export default function MealPlanPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [mealToDelete, setMealToDelete] = useState(null);
   const [form, setForm] = useState({
     dayName: "",
     mealType: "",
@@ -56,14 +59,21 @@ export default function MealPlanPage() {
     }
   };
 
-  const removeMeal = async (id) => {
-    if (confirm("Delete this meal entry?")) {
-      try {
-        await deleteMeal(id);
-        loadMeals();
-      } catch (error) {
-        console.error("Failed to delete meal:", error);
-      }
+  const removeMeal = (id) => {
+    setMealToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!mealToDelete) return;
+    try {
+      await deleteMeal(mealToDelete);
+      loadMeals();
+    } catch (error) {
+      console.error("Failed to delete meal:", error);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setMealToDelete(null);
     }
   };
 
@@ -244,6 +254,14 @@ export default function MealPlanPage() {
         onClose={() => setShowSuccess(false)}
         title="Meal Saved!"
         description="Your scheduled meal has been added successfully."
+      />
+
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setMealToDelete(null); }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Scheduled Meal?"
+        description="Are you sure you want to delete this scheduled meal? This action cannot be undone."
       />
     </div>
   );
