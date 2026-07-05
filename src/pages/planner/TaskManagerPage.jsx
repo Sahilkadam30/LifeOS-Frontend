@@ -3,6 +3,7 @@ import PlannerSidebar from "../../components/planner/PlannerSidebar";
 import TaskForm  from "../../components/planner/TaskForm";
 import TaskTable from "../../components/planner/TaskTable";
 import SuccessModal from "../../components/SuccessModal";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import { getTasks, createTask, updateTask, deleteTask, markCompleted } from "../../services/plannerService";
 
 const card = {
@@ -20,6 +21,8 @@ export default function TaskManagerPage() {
   const [error,    setError]    = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successInfo, setSuccessInfo] = useState({ title: "", description: "" });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   useEffect(() => { loadTasks(); }, []);
 
@@ -53,9 +56,22 @@ export default function TaskManagerPage() {
     } catch (err) { console.error(err); }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this task?")) return;
-    try { await deleteTask(id); loadTasks(); } catch (err) { console.error(err); }
+  const handleDelete = (id) => {
+    setTaskToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!taskToDelete) return;
+    try {
+      await deleteTask(taskToDelete);
+      loadTasks();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setTaskToDelete(null);
+    }
   };
 
   const handleComplete = async (id) => {
@@ -110,6 +126,14 @@ export default function TaskManagerPage() {
         onClose={() => setShowSuccess(false)}
         title={successInfo.title}
         description={successInfo.description}
+      />
+
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setTaskToDelete(null); }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Planner Task?"
+        description="Are you sure you want to delete this task? This action cannot be undone."
       />
 
       <style>{`

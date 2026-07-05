@@ -6,12 +6,15 @@ import {
 } from "../../services/gymService";
 import GymSidebar from "../../components/gym/GymSidebar";
 import SuccessModal from "../../components/SuccessModal";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import { Calendar, Clock, Dumbbell, Tag, Target, Trash2 } from "lucide-react";
 
 export default function WorkoutLog() {
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [workoutToDelete, setWorkoutToDelete] = useState(null);
   const [form, setForm] = useState({
     workoutName: "",
     workoutType: "",
@@ -59,14 +62,21 @@ export default function WorkoutLog() {
     }
   };
 
-  const removeWorkout = async (id) => {
-    if (confirm("Are you sure you want to delete this workout?")) {
-      try {
-        await deleteWorkout(id);
-        loadWorkouts();
-      } catch (error) {
-        console.log(error);
-      }
+  const removeWorkout = (id) => {
+    setWorkoutToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!workoutToDelete) return;
+    try {
+      await deleteWorkout(workoutToDelete);
+      loadWorkouts();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setWorkoutToDelete(null);
     }
   };
 
@@ -271,6 +281,14 @@ export default function WorkoutLog() {
         onClose={() => setShowSuccess(false)}
         title="Workout Logged!"
         description="Your workout session has been logged successfully."
+      />
+
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setWorkoutToDelete(null); }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Workout?"
+        description="Are you sure you want to delete this workout entry? This action cannot be undone."
       />
     </div>
   );

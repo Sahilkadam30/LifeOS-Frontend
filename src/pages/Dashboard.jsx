@@ -1,58 +1,27 @@
-import { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../components/store/slice/auth.slice";
-import API from "../api";
-import "../styles/Dashboard.css";
+import { motion } from "framer-motion";
 import {
-  Sparkles,
-  Flame,
-  CheckCircle2,
-  ChevronRight,
-  Heart,
-  BarChart2,
-  ArrowRight,
-  Home,
-  Target,
-  Users,
-  Settings,
-  Gift,
-  BookOpen,
-  Camera,
-  Music,
-  Palette,
-  Smile,
   Compass,
-  Check,
-  Award
+  Palette,
+  BookOpen,
+  Flame,
+  TrendingUp,
+  Calendar,
+  Award,
+  LogOut,
+  Sparkles,
+  ArrowRight,
+  User
 } from "lucide-react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  
-  // Real or local state for interactive demo/integration
-  const [habits, setHabits] = useState([
-    { id: 1, name: "Drink Water", completed: true },
-    { id: 2, name: "Morning Workout", completed: true },
-    { id: 3, name: "Read 20 Pages", completed: true },
-    { id: 4, name: "Meditate 10 Min", completed: false },
-    { id: 5, name: "No Sugar", completed: false },
-    { id: 6, name: "Sleep by 11 PM", completed: false }
-  ]);
 
-  const [activeTab, setActiveTab] = useState("Home");
-
-  // Handle habit toggling dynamically
-  const toggleHabitState = (id) => {
-    setHabits(habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h));
-  };
-
-  const completedCount = habits.filter(h => h.completed).length;
-  const habitsPercent = habits.length > 0 ? Math.round((completedCount / habits.length) * 100) : 0;
-
-  // Sign out helper
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -60,412 +29,202 @@ export default function Dashboard() {
     navigate("/login");
   };
 
+  const modules = [
+    {
+      title: "Gym & Fitness Hub",
+      description: "Build healthy habits, log daily workouts, track meal planners, and hit your fitness goals.",
+      path: "/gym/dashboard",
+      icon: Flame,
+      color: "from-amber-500 to-orange-600",
+      textColor: "text-amber-600",
+      iconBg: "bg-amber-50",
+      glowColor: "rgba(245, 158, 11, 0.15)"
+    },
+    {
+      title: "Wealth & Finance",
+      description: "Take control of your budget. Track monthly expenses, save systematically, and monitor investments.",
+      path: "/finance/dashboard",
+      icon: TrendingUp,
+      color: "from-emerald-500 to-teal-600",
+      textColor: "text-emerald-600",
+      iconBg: "bg-emerald-50",
+      glowColor: "rgba(16, 185, 129, 0.15)"
+    },
+    {
+      title: "Skills & Learning",
+      description: "Enhance your knowledge. Track study sessions, manage academic subjects, progress and milestones.",
+      path: "/skills/dashboard",
+      icon: Award,
+      color: "from-cyan-500 to-blue-600",
+      textColor: "text-cyan-600",
+      iconBg: "bg-cyan-50",
+      glowColor: "rgba(6, 182, 212, 0.15)"
+    },
+    {
+      title: "Day Planner",
+      description: "Organize your life. Stay on top of daily tasks, calendar schedules, and deadline alerts.",
+      path: "/planner",
+      icon: Calendar,
+      color: "from-indigo-500 to-violet-600",
+      textColor: "text-indigo-600",
+      iconBg: "bg-indigo-50",
+      glowColor: "rgba(99, 102, 241, 0.15)"
+    },
+    {
+      title: "Travel & Journeys",
+      description: "Explore the world. Pin visited spots, manage trip logistics, and update your personal travel feed.",
+      path: "/travel",
+      icon: Compass,
+      color: "from-sky-500 to-blue-500",
+      textColor: "text-sky-600",
+      iconBg: "bg-sky-50",
+      glowColor: "rgba(14, 165, 233, 0.15)"
+    },
+    {
+      title: "Creative Art Zone",
+      description: "Unleash your artistic side. Organize your hobbies, upload drawings, and curate your collection.",
+      path: "/art-zone",
+      icon: Palette,
+      color: "from-pink-500 to-rose-600",
+      textColor: "text-pink-600",
+      iconBg: "bg-pink-50",
+      glowColor: "rgba(236, 72, 153, 0.15)"
+    },
+    {
+      title: "Writings & Notes",
+      description: "Your digital sanctuary for thoughts. Pen stories, compose poems, and keep categorized notes.",
+      path: "/WritingsPage",
+      icon: BookOpen,
+      color: "from-purple-500 to-indigo-600",
+      textColor: "text-purple-600",
+      iconBg: "bg-purple-50",
+      glowColor: "rgba(168, 85, 247, 0.15)"
+    }
+  ];
+
+  // Framer Motion animation configurations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 14 } }
+  };
+
   return (
-    <div className="lo-page">
-      {/* ─── NAVBAR ─── */}
-      <nav className="lo-navbar">
-        <div className="lo-navbar-brand" onClick={() => navigate("/home")} style={{ cursor: "pointer" }}>
-          <Sparkles className="lo-logo-icon" />
-          <span>LifeOS</span>
-        </div>
-        <div className="lo-navbar-links">
-          <a href="#" className={activeTab === "Home" ? "active" : ""} onClick={(e) => { e.preventDefault(); setActiveTab("Home"); }}>Home</a>
-          <a href="#" className={activeTab === "Habits" ? "active" : ""} onClick={(e) => { e.preventDefault(); navigate("/gym/dashboard"); }}>Habits</a>
-          <a href="#" className={activeTab === "Hobbies" ? "active" : ""} onClick={(e) => { e.preventDefault(); navigate("/art-zone"); }}>Hobbies</a>
-          <a href="#" className={activeTab === "Stats" ? "active" : ""} onClick={(e) => { e.preventDefault(); navigate("/finance/dashboard"); }}>Stats</a>
-          <a href="#" className={activeTab === "Planner" ? "active" : ""} onClick={(e) => { e.preventDefault(); navigate("/planner"); }}>Planner</a>
-        </div>
-        <div className="lo-navbar-actions">
-          {user ? (
-            <>
-              <span className="lo-user-welcome" style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--lo-text)", marginRight: "8px" }}>
-                Hi, {user.username || "User"}
-              </span>
-              <button className="lo-btn-outline" onClick={handleLogout}>Log Out</button>
-            </>
-          ) : (
-            <>
-              <button className="lo-btn-outline" onClick={() => navigate("/login")}>Log in</button>
-              <button className="lo-btn-primary" onClick={() => navigate("/register")}>Get Started</button>
-            </>
-          )}
+    <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B] font-sans flex flex-col antialiased">
+      {/* Sleek Modern Header */}
+      <nav className="bg-white border-b border-[#E2E8F0] px-6 py-4 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/home")}>
+            <div className="p-2 bg-gradient-to-tr from-[#7C3AED] to-[#3B82F6] rounded-xl text-white shadow-md shadow-indigo-100">
+              <Sparkles className="h-5 w-5 animate-pulse" />
+            </div>
+            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-[#7C3AED] to-[#3B82F6] bg-clip-text text-transparent">
+              LifeOS
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {user && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#F1F5F9] rounded-xl border border-[#E2E8F0]">
+                <User className="h-4 w-4 text-[#64748B]" />
+                <span className="text-sm font-semibold text-[#475569]">
+                  Hi, {user.username || "User"}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 border border-rose-200 text-rose-600 rounded-xl text-sm font-semibold bg-rose-50/50 hover:bg-rose-100 hover:text-rose-700 transition-all duration-200 cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Log out</span>
+            </button>
+          </div>
         </div>
       </nav>
 
-      {/* ─── HERO SECTION ─── */}
-      <section className="lo-hero">
-        <div className="lo-hero-left lo-animate-up">
-          <div className="lo-hero-badge">
-            <Sparkles size={14} />
-            <span>Free Forever</span>
-          </div>
-          <h1>
-            Track Habits.<br />
-            Explore Hobbies.<br />
-            <span>Build a Better You.</span>
+      {/* Main Dashboard Layout */}
+      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 w-full flex flex-col justify-center">
+        {/* Welcome Headline */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-12 text-center max-w-2xl mx-auto"
+        >
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 text-xs font-bold mb-4">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-ping"></span>
+            LifeOS Navigation Center
+          </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#0F172A] tracking-tight mb-3">
+            Your Personal Space
           </h1>
-          <p className="lo-hero-subtitle">
-            LifeOS is your free space to build good habits, explore hobbies you love, and track progress that truly matters.
+          <p className="text-base sm:text-lg text-[#64748B] leading-relaxed">
+            Welcome to your simple LifeOS command dashboard. Click on any workspace below to manage and track your life.
           </p>
-          <div className="lo-hero-buttons">
-            <button className="lo-hero-btn primary" onClick={() => navigate("/register")}>
-              Get Started Free <ArrowRight size={16} />
-            </button>
-            <button className="lo-hero-btn secondary" onClick={() => navigate("/art-zone")}>
-              <Heart size={16} style={{ fill: "currentColor" }} /> Explore Hobbies
-            </button>
-          </div>
-          <div className="lo-hero-social">
-            <div className="lo-hero-avatars">
-              <span style={{ backgroundColor: "#8b5cf6" }}>JD</span>
-              <span style={{ backgroundColor: "#ec4899" }}>AM</span>
-              <span style={{ backgroundColor: "#3b82f6" }}>KT</span>
-              <span style={{ backgroundColor: "#10b981" }}>SR</span>
-            </div>
-            <div className="lo-hero-social-info">
-              <div className="lo-hero-stars">★★★★★</div>
-              <p className="lo-hero-social-text">
-                <strong>10,000+ users</strong> loving their journey
-              </p>
-            </div>
-          </div>
-        </div>
+        </motion.div>
 
-        {/* HERO RIGHT: PREMIUM APP INTERACTIVE MOCKUP PANEL */}
-        <div className="lo-hero-right lo-animate-right">
-          <div className="lo-preview">
-            {/* Embedded Floating Sidebar */}
-            <div className="lo-preview-sidebar">
-              <div className="lo-preview-sidebar-icon active"><Sparkles size={16} /></div>
-              <div className="lo-preview-sidebar-icon" onClick={() => navigate("/home")} title="Home"><Home size={16} /></div>
-              <div className="lo-preview-sidebar-icon" onClick={() => navigate("/gym/dashboard")} title="Gym & Habits"><Target size={16} /></div>
-              <div className="lo-preview-sidebar-icon" onClick={() => navigate("/art-zone")} title="Art & Hobbies"><Heart size={16} /></div>
-              <div className="lo-preview-sidebar-icon" onClick={() => navigate("/finance/dashboard")} title="Finance Stats"><BarChart2 size={16} /></div>
-              <div className="lo-preview-sidebar-icon" onClick={() => navigate("/travel")} title="Travel Sections"><Compass size={16} /></div>
-              <div className="lo-preview-sidebar-icon" onClick={() => navigate("/planner")} title="Planner & Tasks"><Settings size={16} /></div>
-            </div>
-
-            {/* Dashboard Mockup Content */}
-            <div className="lo-preview-header">
-              <div className="lo-preview-welcome">
-                Welcome back, {user?.username || "Alex"}! 👋
-                <small>Let's make today a productive one.</small>
-              </div>
-              <div className="lo-streak-badge">
-                <Flame size={16} style={{ fill: "currentColor" }} />
-                <span>12 Day Streak</span>
-              </div>
-            </div>
-
-            <div className="lo-preview-grid">
-              {/* Habits Preview */}
-              <div className="lo-mini-card">
-                <h4>Today's Habits</h4>
-                <div className="stat-big" style={{ marginBottom: "8px" }}>
-                  {habits.slice(0, 5).filter(h => h.completed).length} <small>/ 5 Completed</small>
-                </div>
-                <div className="lo-habits-progress-bar" style={{ height: "6px", marginBottom: "12px" }}>
-                  <div 
-                    className="lo-habits-progress-fill" 
-                    style={{ width: `${Math.min(100, Math.round((habits.slice(0, 5).filter(h => h.completed).length / 5) * 100))}%` }}
-                  ></div>
-                </div>
-                <div className="lo-habit-list">
-                  {habits.slice(0, 5).map((habit) => (
-                    <div 
-                      key={habit.id} 
-                      className="lo-habit-item" 
-                      onClick={() => toggleHabitState(habit.id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className={`lo-habit-check ${habit.completed ? "done" : "pending"}`}>
-                        {habit.completed && <Check size={10} strokeWidth={3} />}
-                      </div>
-                      <span style={{ textDecoration: habit.completed ? "line-through" : "none", color: habit.completed ? "var(--lo-text-secondary)" : "var(--lo-text)" }}>
-                        {habit.name}
-                      </span>
+        {/* Modules Grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {modules.map((m) => {
+            const Icon = m.icon;
+            return (
+              <motion.div
+                key={m.path}
+                variants={itemVariants}
+                onClick={() => navigate(m.path)}
+                whileHover={{ y: -5, shadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}
+                className="group relative bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm hover:border-slate-300 cursor-pointer transition-all duration-300 flex flex-col justify-between h-56"
+                style={{
+                  "--hover-glow": m.glowColor
+                }}
+              >
+                <div>
+                  {/* Top section: Icon and dynamic indicator */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-3 rounded-xl ${m.iconBg} group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon className={`h-6 w-6 ${m.textColor}`} />
                     </div>
-                  ))}
-                </div>
-                <div className="lo-mini-link" onClick={() => navigate("/gym/dashboard")}>View all</div>
-              </div>
-
-              {/* Hobbies Preview */}
-              <div className="lo-mini-card">
-                <h4>Explore a Hobby</h4>
-                <div className="lo-hobby-tags" style={{ marginTop: "8px" }}>
-                  <div className="lo-hobby-tag" style={{ background: "#eef2ff", color: "#4f46e5" }}>🎸 Guitar</div>
-                  <div className="lo-hobby-tag" style={{ background: "#fdf2f8", color: "#db2777" }}>🎨 Painting</div>
-                  <div className="lo-hobby-tag" style={{ background: "#ecfdf5", color: "#059669" }}>📷 Photography</div>
-                  <div className="lo-hobby-tag" style={{ background: "#fef3c7", color: "#d97706" }}>✍️ Writing</div>
-                  <div className="lo-hobby-tag" style={{ background: "#eff6ff", color: "#2563eb" }}>🌱 Gardening</div>
-                  <div className="lo-hobby-tag" style={{ background: "#fff1f2", color: "#e11d48" }}>🍳 Cooking</div>
-                </div>
-                <div className="lo-mini-link" style={{ marginTop: "24px" }} onClick={() => navigate("/art-zone")}>
-                  View all hobbies
-                </div>
-              </div>
-
-              {/* Weekly Progress Line Chart Preview */}
-              <div className="lo-mini-card lo-progress-card">
-                <h4>Weekly Progress</h4>
-                <div className="lo-progress-bars">
-                  {[
-                    { label: "Mon", val: 40 },
-                    { label: "Tue", val: 55 },
-                    { label: "Wed", val: 70 },
-                    { label: "Thu", val: 85, active: true },
-                    { label: "Fri", val: 60 },
-                    { label: "Sat", val: 45 },
-                    { label: "Sun", val: 90 }
-                  ].map((d, i) => (
-                    <div className="lo-bar-wrapper" key={i}>
-                      <div 
-                        className={`lo-bar ${d.active ? "active" : ""}`} 
-                        style={{ height: `${d.val}%` }}
-                      >
-                        {d.active && <span className="lo-bar-pct">85%</span>}
-                      </div>
-                      <span className="lo-bar-label">{d.label}</span>
+                    <div className="flex items-center gap-1 text-xs font-bold text-[#94A3B8] group-hover:text-indigo-600 transition-colors">
+                      <span>Open Space</span>
+                      <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-1" />
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Status Notice */}
-              <div className="lo-week-msg">
-                <div className="lo-week-emoji">
-                  <Smile size={24} color="#fff" />
-                </div>
-                <div className="lo-week-msg-text">
-                  <h4>This Week</h4>
-                  <p><strong>Great job!</strong> You're doing awesome.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── FEATURES GRID SECTION ─── */}
-      <section className="lo-features">
-        <h2>Everything You Need, All in One Place</h2>
-        <div className="lo-features-grid">
-          <div className="lo-feature-card lo-animate-up" onClick={() => navigate("/gym/dashboard")}>
-            <div className="lo-feature-icon purple">
-              <CheckCircle2 size={24} />
-            </div>
-            <h3>Track Habits</h3>
-            <p>Build and track daily habits. Stay consistent and see real progress.</p>
-          </div>
-
-          <div className="lo-feature-card lo-animate-up lo-animate-delay-1" onClick={() => navigate("/art-zone")}>
-            <div className="lo-feature-icon red">
-              <Heart size={24} style={{ fill: "currentColor" }} />
-            </div>
-            <h3>Explore Hobbies</h3>
-            <p>Choose from a variety of hobbies and track the time spent doing what you love.</p>
-          </div>
-
-          <div className="lo-feature-card lo-animate-up lo-animate-delay-2" onClick={() => navigate("/finance/dashboard")}>
-            <div className="lo-feature-icon blue">
-              <BarChart2 size={24} />
-            </div>
-            <h3>Beautiful Stats</h3>
-            <p>Visualize your progress with simple and powerful statistics.</p>
-          </div>
-
-          <div className="lo-feature-card lo-animate-up lo-animate-delay-3" onClick={() => navigate("/gym/goals")}>
-            <div className="lo-feature-icon orange">
-              <Flame size={24} style={{ fill: "currentColor" }} />
-            </div>
-            <h3>Streaks & Goals</h3>
-            <p>Stay motivated with streaks, goals, and daily reminders.</p>
-          </div>
-
-          <div className="lo-feature-card lo-animate-up lo-animate-delay-4">
-            <div className="lo-feature-icon green">
-              <Gift size={24} />
-            </div>
-            <h3>100% Free</h3>
-            <p>All features. Always free. No hidden costs, ever.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── MODULE DETAILED SECTION ─── */}
-      <section className="lo-modules">
-        {/* HOBBIES ROW */}
-        <div className="lo-module-row">
-          <div className="lo-module-intro">
-            <div className="label">Hobbies</div>
-            <h3>Do More of What You Love</h3>
-            <p>Pick your favorite hobbies and track how much time you spend on them each day.</p>
-            <button className="lo-module-btn" onClick={() => navigate("/art-zone")}>Browse Hobbies</button>
-          </div>
-
-          <div className="lo-module-content">
-            <div className="lo-module-content-header">
-              <h4>My Hobbies</h4>
-              <a onClick={() => navigate("/art-zone")}>View all</a>
-            </div>
-            <div className="lo-module-items">
-              <div className="lo-module-item" onClick={() => navigate("/art-zone")}>
-                <div className="lo-module-item-icon">🎸</div>
-                <div className="lo-module-item-name">Guitar</div>
-                <div className="lo-module-item-meta">4.5 hrs this week</div>
-              </div>
-              <div className="lo-module-item" onClick={() => navigate("/art-zone")}>
-                <div className="lo-module-item-icon">📷</div>
-                <div className="lo-module-item-name">Photography</div>
-                <div className="lo-module-item-meta">3 hrs this week</div>
-              </div>
-              <div className="lo-module-item" onClick={() => navigate("/art-zone")}>
-                <div className="lo-module-item-icon">📚</div>
-                <div className="lo-module-item-name">Reading</div>
-                <div className="lo-module-item-meta">5 hrs this week</div>
-              </div>
-              <div className="lo-module-item" onClick={() => navigate("/art-zone")}>
-                <div className="lo-module-item-icon">🎨</div>
-                <div className="lo-module-item-name">Painting</div>
-                <div className="lo-module-item-meta">2.5 hrs this week</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="lo-module-stats">
-            <h4>Time Spent This Week</h4>
-            <div className="big-stat">15h 30m</div>
-            <div className="stat-change">↑ 12% from last week</div>
-            <div className="lo-mini-bars">
-              <div className="lo-mini-bar purple" style={{ height: "40%" }}></div>
-              <div className="lo-mini-bar purple" style={{ height: "30%" }}></div>
-              <div className="lo-mini-bar purple" style={{ height: "60%" }}></div>
-              <div className="lo-mini-bar purple" style={{ height: "50%" }}></div>
-              <div className="lo-mini-bar purple" style={{ height: "80%" }}></div>
-              <div className="lo-mini-bar purple" style={{ height: "70%" }}></div>
-              <div className="lo-mini-bar purple" style={{ height: "45%" }}></div>
-            </div>
-            <div className="lo-mini-bar-labels">
-              <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
-            </div>
-          </div>
-        </div>
-
-        {/* HABITS ROW */}
-        <div className="lo-habits-row">
-          <div className="lo-module-intro lo-habits-intro">
-            <div className="label" style={{ color: "#b45309" }}>Habits</div>
-            <h3 style={{ color: "#78350f" }}>Small Steps, Big Changes</h3>
-            <p style={{ color: "#92400e" }}>Consistency is the key. Track your daily habits and build a better you.</p>
-            <button className="lo-module-btn" style={{ borderColor: "#b45309", color: "#b45309" }} onClick={() => navigate("/gym/dashboard")}>
-              Create a Habit
-            </button>
-          </div>
-
-          <div className="lo-module-content">
-            <div className="lo-module-content-header">
-              <h4>Today's Habits</h4>
-              <span style={{ fontSize: "0.8rem", color: "var(--lo-text-secondary)" }}>
-                {completedCount} / {habits.length} completed
-              </span>
-            </div>
-            <div className="lo-habits-progress-bar">
-              <div 
-                className="lo-habits-progress-fill" 
-                style={{ width: `${habitsPercent}%` }}
-              ></div>
-            </div>
-            <div className="lo-habits-list">
-              {habits.map((habit) => (
-                <div 
-                  className="lo-habits-list-item" 
-                  key={habit.id} 
-                  onClick={() => toggleHabitState(habit.id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="lo-habits-list-left">
-                    <div className={`lo-habits-checkbox ${habit.completed ? "done" : "pending"}`}>
-                      {habit.completed && <Check size={12} strokeWidth={3} />}
-                    </div>
-                    <span 
-                      className="lo-habits-list-name" 
-                      style={{ textDecoration: habit.completed ? "line-through" : "none", color: habit.completed ? "var(--lo-text-secondary)" : "var(--lo-text)" }}
-                    >
-                      {habit.name}
-                    </span>
                   </div>
-                  <ChevronRight size={16} className="lo-habits-list-arrow" />
+
+                  {/* Module Title */}
+                  <h3 className="text-lg font-bold text-[#0F172A] group-hover:text-indigo-600 transition-colors mb-2">
+                    {m.title}
+                  </h3>
+
+                  {/* Module Description */}
+                  <p className="text-sm text-[#64748B] leading-relaxed line-clamp-3">
+                    {m.description}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="lo-streak-card">
-            <h4>Current Streak</h4>
-            <div className="lo-streak-fire">🔥</div>
-            <div className="lo-streak-number">
-              12 <small>Days</small>
-            </div>
-            <div style={{ position: "relative", width: "120px", height: "60px", margin: "16px auto 8px", overflow: "hidden" }}>
-              <div style={{
-                width: "120px",
-                height: "120px",
-                borderRadius: "50%",
-                border: "6px dashed #e5e7eb",
-                position: "absolute",
-                top: 0,
-                left: 0
-              }}></div>
-              <div style={{
-                width: "120px",
-                height: "120px",
-                borderRadius: "50%",
-                border: "6px solid var(--lo-accent)",
-                borderBottomColor: "transparent",
-                borderLeftColor: "transparent",
-                position: "absolute",
-                top: 0,
-                left: 0,
-                transform: "rotate(45deg)"
-              }}></div>
-            </div>
-            <div className="lo-streak-best">Best: 28 Days</div>
-          </div>
-        </div>
-      </section>
+                {/* Subtly animated gradient line decoration at bottom */}
+                <div className={`absolute bottom-0 left-0 right-0 h-1.5 rounded-b-2xl bg-gradient-to-r ${m.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </main>
 
-      {/* ─── CTA BANNER ─── */}
-      <section className="lo-cta">
-        <div className="lo-cta-inner">
-          <div>
-            <h3>Ready to start your journey?</h3>
-            <p>Join thousands of people improving their lives one habit and hobby at a time.</p>
-          </div>
-          <button className="lo-cta-btn" onClick={() => navigate("/register")}>
-            Get Started Free <ArrowRight size={16} />
-          </button>
-        </div>
-      </section>
-
-      {/* ─── FOOTER ─── */}
-      <footer className="lo-footer">
-        <div className="lo-footer-brand">
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--lo-primary)", fontWeight: "800" }}>
-            <Sparkles size={20} />
-            <span>LifeOS</span>
-          </div>
-          <small>Your Life. Organized. Simplified. Improved.</small>
-        </div>
-        <div className="lo-footer-links">
-          <a href="#" onClick={(e) => { e.preventDefault(); navigate("/gym/dashboard"); }}>Habits</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); navigate("/art-zone"); }}>Hobbies</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); navigate("/finance/dashboard"); }}>Stats</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); navigate("/planner"); }}>Planner</a>
-        </div>
-        <div className="lo-footer-love">
-          Made with <span>❤️</span> for a better you.
-        </div>
+      {/* Styled Footer */}
+      <footer className="bg-white border-t border-[#E2E8F0] py-6 text-center text-xs text-[#94A3B8] mt-12">
+        <p>LifeOS • Designed to simplify, organize, and track your life.</p>
       </footer>
     </div>
   );

@@ -3,6 +3,7 @@ import API from "../api";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import { logout } from "../components/store/slice/auth.slice";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
@@ -27,6 +28,16 @@ export default function ArtZone() {
   const [commentText, setCommentText] = useState({});
   const [comments, setComments] = useState({});
   const [likedAnimation, setLikedAnimation] = useState({});
+  const [expandedComments, setExpandedComments] = useState({});
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
+
+  const toggleComments = (postId) => {
+    setExpandedComments((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
 
   const token = useSelector((state) => state.auth.token);
   const currentUser = useSelector((state) => state.auth.user);
@@ -157,14 +168,21 @@ export default function ArtZone() {
   };
 
   // ================= DELETE =================
-  const deletePost = async (id) => {
-    if (confirm("Are you sure you want to delete this post?")) {
-      try {
-        await API.delete(`/art/post/${id}`);
-        setPosts(posts.filter((p) => p.id !== id));
-      } catch (err) {
-        console.error(err);
-      }
+  const deletePost = (id) => {
+    setPostToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!postToDelete) return;
+    try {
+      await API.delete(`/art/post/${postToDelete}`);
+      setPosts(posts.filter((p) => p.id !== postToDelete));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setPostToDelete(null);
     }
   };
 
@@ -364,13 +382,23 @@ export default function ArtZone() {
               {/* ACTION BUTTONS */}
               <div className="mt-5">
                 <div className="flex items-center justify-between border-t border-[#F1F5F9] pt-4 mb-4">
-                  <button
-                    onClick={() => likePost(post.id)}
-                    className="flex items-center gap-1.5 text-[#2563EB] hover:text-[#1D4ED8] font-semibold text-[13px] transition"
-                  >
-                    <Heart size={16} className="fill-[#2563EB]/10" />
-                    <span>{post.likes} Likes</span>
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => likePost(post.id)}
+                      className="flex items-center gap-1.5 text-[#2563EB] hover:text-[#1D4ED8] font-semibold text-[13px] transition"
+                    >
+                      <Heart size={16} className="fill-[#2563EB]/10" />
+                      <span>{post.likes} Likes</span>
+                    </button>
+
+                    <button
+                      onClick={() => toggleComments(post.id)}
+                      className="flex items-center gap-1.5 text-[#64748B] hover:text-[#2563EB] font-semibold text-[13px] transition"
+                    >
+                      <MessageSquare size={16} className={expandedComments[post.id] ? "fill-[#2563EB] text-[#2563EB]" : ""} />
+                      <span>Comments ({comments[post.id]?.length || 0})</span>
+                    </button>
+                  </div>
 
                   {post.username === user && (
                     <button
@@ -383,49 +411,66 @@ export default function ArtZone() {
                   )}
                 </div>
 
-                {/* COMMENTS LIST */}
-                <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
-                  {(comments[post.id] || []).map((c) => (
-                    <div
-                      key={c.id}
-                      className="bg-[#F8FAFC] border border-[#E2E8F0]/30 rounded-[8px] px-3.5 py-2"
-                    >
-                      <p className="text-[13px] text-[#334155] leading-normal">
-                        <span className="font-bold text-[#1E293B] mr-1">
-                          {c.username}
-                        </span>
-                        {c.text}
-                      </p>
+                {/* COMMENTS SECTION */}
+                {expandedComments[post.id] && (
+                  <div className="mt-4 transition-all duration-300">
+                    {/* COMMENTS LIST */}
+                    <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                      {(comments[post.id] || []).length === 0 ? (
+                        <p className="text-[12px] text-[#94A3B8] italic px-1">No comments yet. Be the first to comment!</p>
+                      ) : (
+                        (comments[post.id] || []).map((c) => (
+                          <div
+                            key={c.id}
+                            className="bg-[#F8FAFC] border border-[#E2E8F0]/30 rounded-[8px] px-3.5 py-2"
+                          >
+                            <p className="text-[13px] text-[#334155] leading-normal">
+                              <span className="font-bold text-[#1E293B] mr-1">
+                                {c.username}
+                              </span>
+                              {c.text}
+                            </p>
+                          </div>
+                        ))
+                      )}
                     </div>
-                  ))}
-                </div>
 
-                {/* COMMENT INPUT */}
-                <div className="flex items-center border border-[#E2E8F0] rounded-[10px] overflow-hidden mt-4 bg-[#F8FAFC]">
-                  <input
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={commentText[post.id] || ""}
-                    onChange={(e) =>
-                      setCommentText({
-                        ...commentText,
-                        [post.id]: e.target.value,
-                      })
-                    }
-                    className="flex-1 px-3.5 py-2 bg-transparent outline-none text-[13px] text-[#1E293B]"
-                  />
-                  <button
-                    onClick={() => addComment(post.id)}
-                    className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 text-[13px] font-semibold transition"
-                  >
-                    Post
-                  </button>
-                </div>
+                    {/* COMMENT INPUT */}
+                    <div className="flex items-center border border-[#E2E8F0] rounded-[10px] overflow-hidden mt-4 bg-[#F8FAFC]">
+                      <input
+                        type="text"
+                        placeholder="Write a comment..."
+                        value={commentText[post.id] || ""}
+                        onChange={(e) =>
+                          setCommentText({
+                            ...commentText,
+                            [post.id]: e.target.value,
+                          })
+                        }
+                        className="flex-1 px-3.5 py-2 bg-transparent outline-none text-[13px] text-[#1E293B]"
+                      />
+                      <button
+                        onClick={() => addComment(post.id)}
+                        className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 text-[13px] font-semibold transition"
+                      >
+                        Post
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setPostToDelete(null); }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Artwork Post?"
+        description="Are you sure you want to delete this post? This will permanently remove the artwork and its comments."
+      />
     </div>
   );
 }

@@ -13,11 +13,11 @@ import { FiMap, FiCompass, FiHeart, FiBarChart2, FiAward, FiHome, FiLogOut, FiSe
 
 /* ─── Sidebar ─────────────────────────────────────── */
 const menuItems = [
-  { id: "feed",    label: "Journey Feed",   icon: FiCompass, path: "/travelfeed" },
-  { id: "map",     label: "Map View",       icon: FiMap,     path: "/travel"     },
-  { id: "visited", label: "Visited Trips",  icon: FiAward,   path: "/travel"     },
-  { id: "wishlist",label: "Wishlist",       icon: FiHeart,   path: "/travel"     },
-  { id: "stats",   label: "Statistics",     icon: FiBarChart2,path: "/travel"    },
+  { id: "feed", label: "Journey Feed", icon: FiCompass, path: "/travelfeed" },
+  { id: "map", label: "Map View", icon: FiMap, path: "/travel" },
+  { id: "visited", label: "Visited Trips", icon: FiAward, path: "/travel" },
+  { id: "wishlist", label: "Wishlist", icon: FiHeart, path: "/travel" },
+  { id: "stats", label: "Statistics", icon: FiBarChart2, path: "/travel" },
 ];
 
 function TravelFeedSidebar({ active }) {
@@ -104,17 +104,17 @@ function TravelFeedSidebar({ active }) {
 
 /* ─── Main Page ───────────────────────────────────── */
 export default function TravelFeed() {
-  const [posts,        setPosts]        = useState([]);
-  const [likedPosts,   setLikedPosts]   = useState({});
-  const [showHeart,    setShowHeart]    = useState({});
+  const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState({});
+  const [showHeart, setShowHeart] = useState({});
   const [currentIndex, setCurrentIndex] = useState({});
-  const [commentText,  setCommentText]  = useState({});
+  const [commentText, setCommentText] = useState({});
   const [showComments, setShowComments] = useState({});
-  const [showConfirm,  setShowConfirm]  = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const [currentUser,  setCurrentUser]  = useState("");
+  const [currentUser, setCurrentUser] = useState("");
 
-  const token    = useSelector((s) => s.auth.token);
+  const token = useSelector((s) => s.auth.token);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -156,9 +156,9 @@ export default function TravelFeed() {
     } catch (err) { console.error(err); }
   };
 
-  const openDeletePopup  = (id) => { setSelectedPostId(id); setShowConfirm(true); };
-  const cancelDelete     = () => { setShowConfirm(false); setSelectedPostId(null); };
-  const confirmDelete    = async () => {
+  const openDeletePopup = (id) => { setSelectedPostId(id); setShowConfirm(true); };
+  const cancelDelete = () => { setShowConfirm(false); setSelectedPostId(null); };
+  const confirmDelete = async () => {
     try {
       await API.delete(`/travel/post/${selectedPostId}`);
       setPosts((prev) => prev.filter((p) => p.id !== selectedPostId));
