@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../api";
 import MapView from "../components/MapView";
+import SuccessModal from "../components/SuccessModal";
 import { useNavigate } from "react-router-dom";
 
 export default function AddVisited() {
@@ -15,19 +16,16 @@ export default function AddVisited() {
     longitude: "",
   });
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const setCoordinates = ({ latitude, longitude }) => {
-    setForm({
-      ...form,
-      latitude,
-      longitude,
-    });
+    setForm({ ...form, latitude, longitude });
   };
 
   const handleSubmit = async () => {
     try {
       await API.post("/visited", form);
-
-      navigate("/dashboard");
+      setShowSuccess(true);
     } catch (err) {
       console.log(err);
     }
@@ -55,65 +53,42 @@ export default function AddVisited() {
               className="w-full bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4 outline-none focus:border-[#6C4DFF]"
               placeholder="Place Name"
               value={form.placeName}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  placeName: e.target.value,
-                })
-              }
+              onChange={(e) => setForm({ ...form, placeName: e.target.value })}
             />
 
             <input
               className="w-full bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4 outline-none focus:border-[#6C4DFF]"
               placeholder="Type (Fort, Cave, Temple...)"
               value={form.type}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  type: e.target.value,
-                })
-              }
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
             />
 
             <input
               type="date"
               className="w-full bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4 outline-none focus:border-[#6C4DFF]"
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  visitedOn: e.target.value,
-                })
-              }
+              onChange={(e) => setForm({ ...form, visitedOn: e.target.value })}
             />
 
             <input
               className="w-full bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4 outline-none focus:border-[#6C4DFF]"
               placeholder="City"
               value={form.city}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  city: e.target.value,
-                })
-              }
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
             />
 
             <div className="grid grid-cols-2 gap-4">
-
               <input
                 className="bg-[#F1EEFF] rounded-2xl px-5 py-4 text-[#666]"
                 placeholder="Latitude"
                 value={form.latitude}
                 readOnly
               />
-
               <input
                 className="bg-[#F1EEFF] rounded-2xl px-5 py-4 text-[#666]"
                 placeholder="Longitude"
                 value={form.longitude}
                 readOnly
               />
-
             </div>
 
             <button
@@ -134,6 +109,13 @@ export default function AddVisited() {
           />
         </div>
       </div>
+
+      <SuccessModal
+        open={showSuccess}
+        onClose={() => { setShowSuccess(false); navigate("/travel"); }}
+        title="Visited Place Saved! 📍"
+        description="Your travel memory has been added to your visited places."
+      />
     </div>
   );
 }

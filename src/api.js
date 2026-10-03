@@ -12,18 +12,22 @@ API.interceptors.request.use((config) => {
   const state = store.getState();
 
   const token =
-    state.auth.token || localStorage.getItem("token");
+    state.auth?.token ||
+    sessionStorage.getItem("token") ||
+    localStorage.getItem("token");
 
   const userId =
+    state.auth?.user?.id ||
+    sessionStorage.getItem("userId") ||
     localStorage.getItem("userId");
 
   // ✅ TOKEN
-  if (token) {
+  if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
   // ✅ USER ID
-  if (userId) {
+  if (userId && !config.headers.userId) {
     config.headers.userId = userId;
   }
 

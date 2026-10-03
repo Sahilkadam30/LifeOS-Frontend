@@ -73,7 +73,14 @@ export default function FitnessGoals() {
       return;
     }
     try {
-      await createGoal(goalForm);
+      // Backend uses targetDate (LocalDate) and status string
+      await createGoal({
+        goalName: goalForm.goalName,
+        targetValue: Number(goalForm.targetValue),
+        currentValue: 0,
+        status: "ACTIVE",
+        targetDate: goalForm.deadline || null,
+      });
       setGoalForm({ goalName: "", targetValue: "", deadline: "" });
       setShowGoalSuccess(true);
       loadGoals();
@@ -83,10 +90,15 @@ export default function FitnessGoals() {
   };
 
   const handleToggleGoal = async (goal) => {
+    // Backend uses status: "ACTIVE" | "COMPLETED" — not a boolean "completed" field
+    const newStatus = goal.status === "COMPLETED" ? "ACTIVE" : "COMPLETED";
     try {
       await updateGoal(goal.id, {
-        ...goal,
-        completed: !goal.completed,
+        goalName: goal.goalName,
+        targetValue: goal.targetValue,
+        currentValue: goal.currentValue,
+        targetDate: goal.targetDate,
+        status: newStatus,
       });
       loadGoals();
     } catch (err) {
@@ -165,8 +177,8 @@ export default function FitnessGoals() {
   };
 
   // ── Derived ────────────────────────────────────────────
-  const activeGoals = goals.filter((g) => !g.completed);
-  const completedGoals = goals.filter((g) => g.completed);
+  const activeGoals = goals.filter((g) => g.status !== "COMPLETED");
+  const completedGoals = goals.filter((g) => g.status === "COMPLETED");
   const completedHabits = habits.filter((h) => h.completed).length;
   const completionPct =
     habits.length === 0
@@ -418,9 +430,9 @@ export default function FitnessGoals() {
                             <span className="bg-white text-[#2563EB] border border-[#2563EB]/15 px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
                               Target: {goal.targetValue}
                             </span>
-                            {goal.deadline && (
+                            {goal.targetDate && (
                               <span className="bg-white text-[#64748B] border border-[#E2E8F0] px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
-                                Due: {goal.deadline}
+                                Due: {goal.targetDate}
                               </span>
                             )}
                           </div>
@@ -470,9 +482,9 @@ export default function FitnessGoals() {
                             <span className="bg-white text-[#16A34A] border border-[#16A34A]/20 px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
                               Target: {goal.targetValue}
                             </span>
-                            {goal.deadline && (
+                            {goal.targetDate && (
                               <span className="bg-white text-[#64748B] border border-[#E2E8F0] px-2.5 py-0.5 rounded-[6px] text-[11px] font-bold uppercase tracking-wider">
-                                Due: {goal.deadline}
+                                Due: {goal.targetDate}
                               </span>
                             )}
                           </div>

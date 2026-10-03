@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { FiSearch, FiPlus } from "react-icons/fi";
+import { FiSearch, FiPlus, FiCompass } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import WritingCard from "../components/WritingCard";
 import AddWritingModal from "../components/AddWritingModal";
 import { getAllWritings } from "../services/writingService";
 
 const WritingsPage = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [showFavorites, setShowFavorites] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -51,7 +53,13 @@ const WritingsPage = () => {
     if (activeTab === "STORY") {
       return "Storytelling";
     }
-    return "Poems";
+    if (activeTab === "POEM") {
+      return "Poems";
+    }
+    if (activeTab === "POST") {
+      return "Thoughts & Posts";
+    }
+    return "Writings";
   };
 
   // DESCRIPTION
@@ -65,7 +73,13 @@ const WritingsPage = () => {
     if (activeTab === "STORY") {
       return "Document your deep creative stories and journal entries.";
     }
-    return "Reflect feelings and emotions through elegant poems.";
+    if (activeTab === "POEM") {
+      return "Reflect feelings and emotions through elegant poems.";
+    }
+    if (activeTab === "POST") {
+      return "Share your thoughts, perspectives, and reflections with the LifeOS Explore community.";
+    }
+    return "Write, organize, and store your thoughts.";
   };
 
   return (
@@ -91,14 +105,25 @@ const WritingsPage = () => {
             </p>
           </div>
 
-          {/* ADD BUTTON */}
-          <button
-            onClick={() => setOpenModal(true)}
-            className="flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium px-5 py-3 rounded-[10px] text-[15px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
-          >
-            <FiPlus className="text-lg" />
-            <span>Create New</span>
-          </button>
+          {/* ACTIONS */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/explore")}
+              className="flex items-center justify-center gap-2 bg-white border border-[#2563EB]/30 hover:border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB]/5 font-medium px-4 py-3 rounded-[10px] text-[15px] shadow-sm transition-all duration-300"
+            >
+              <FiCompass className="text-lg" />
+              <span>Explore Community</span>
+            </button>
+
+            {/* ADD BUTTON */}
+            <button
+              onClick={() => setOpenModal(true)}
+              className="flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium px-5 py-3 rounded-[10px] text-[15px] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+            >
+              <FiPlus className="text-lg" />
+              <span>Create New</span>
+            </button>
+          </div>
         </div>
 
         {/* SEARCH & FILTER CONTROLS */}
@@ -145,6 +170,7 @@ const WritingsPage = () => {
         <AddWritingModal
           closeModal={() => setOpenModal(false)}
           refreshData={loadData}
+          initialType={activeTab === "POST" ? "POST" : (activeTab === "STORY" ? "STORY" : (activeTab === "POEM" ? "POEM" : "NOTE"))}
         />
       )}
     </div>

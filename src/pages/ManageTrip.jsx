@@ -1,15 +1,30 @@
 import { useEffect, useState } from "react";
 import API from "../api";
 import MapView from "../components/MapView";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import TravelSidebar from "../components/TravelSidebar";
+import SuccessModal from "../components/SuccessModal";
 import { FiArrowLeft, FiPlus, FiTrash2, FiMapPin } from "react-icons/fi";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 export default function ManageTrip() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("visited");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.initialTab || "visited");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successInfo, setSuccessInfo] = useState({ title: "", description: "" });
+
+  useEffect(() => {
+    if (location.state?.initialTab) {
+      setActiveTab(location.state.initialTab);
+    }
+  }, [location.state]);
+
+  const triggerSuccess = (title, description, afterClose) => {
+    setSuccessInfo({ title, description, afterClose });
+    setShowSuccess(true);
+  };
 
   // ================= VISITED =================
   const [visitedForm, setVisitedForm] = useState({
@@ -78,8 +93,12 @@ export default function ManageTrip() {
     }
     try {
       await API.post("/visited", visitedForm);
-      alert("Visited Place Added Successfully");
-      navigate("/travel");
+      triggerSuccess(
+        "Visited Place Added! 📍",
+        `"${visitedForm.placeName}" has been saved to your visited places.`,
+        () => navigate("/travel")
+      );
+      setVisitedForm({ placeName: "", type: "", visitedOn: "", city: "", latitude: "", longitude: "" });
     } catch (err) {
       console.log(err);
     }
@@ -93,8 +112,12 @@ export default function ManageTrip() {
     }
     try {
       await API.post("/wishlist", wishlistForm);
-      alert("Wishlist Place Added Successfully");
-      navigate("/travel");
+      triggerSuccess(
+        "Wishlist Place Added! 🌍",
+        `"${wishlistForm.placeName}" has been added to your travel wishlist.`,
+        () => navigate("/travel")
+      );
+      setWishlistForm({ placeName: "", planDate: "", city: "", latitude: "", longitude: "" });
     } catch (err) {
       console.log(err);
     }
@@ -120,7 +143,11 @@ export default function ManageTrip() {
         places: places.filter((p) => p.latitude && p.longitude),
       });
 
-      alert("Travel Section Created Successfully");
+      triggerSuccess(
+        "Collection Created! 🗺️",
+        `"${sectionTitle}" collection with ${places.length} destination(s) has been saved.`,
+        () => navigate("/travel")
+      );
       setSectionTitle("");
       setDescription("");
       setSelectedColor("#2563EB");
@@ -531,6 +558,16 @@ export default function ManageTrip() {
           </div>
         )}
       </div>
+
+      <SuccessModal
+        open={showSuccess}
+        onClose={() => {
+          setShowSuccess(false);
+          if (successInfo.afterClose) successInfo.afterClose();
+        }}
+        title={successInfo.title}
+        description={successInfo.description}
+      />
     </div>
   );
 }

@@ -12,7 +12,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "@stomp/stompjs": "^7.3.0",
-    "axios": "^1.16.0",
+    "axios": "^1.20.0",
     "bootstrap": "^5.3.8",
     "browser-image-compression": "^2.0.2",
     "framer-motion": "^12.38.0",

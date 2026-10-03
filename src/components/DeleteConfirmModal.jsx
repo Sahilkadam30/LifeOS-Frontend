@@ -14,28 +14,34 @@ import { Trash2 } from "lucide-react";
  */
 export default function DeleteConfirmModal({
   open,
+  isOpen,
   onClose,
+  onCancel,
   onConfirm,
   title = "Delete Entry?",
-  description = "Are you sure you want to delete this entry? This action cannot be undone.",
+  description,
+  message,
 }) {
   const panelRef = useRef(null);
+  const isModalOpen = open !== undefined ? open : isOpen;
+  const handleClose = onClose || onCancel || (() => {});
+  const bodyDescription = description || message || "Are you sure you want to delete this entry? This action cannot be undone.";
 
   /* Close on Escape */
   useEffect(() => {
-    if (!open) return;
-    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    if (!isModalOpen) return;
+    const handleKey = (e) => { if (e.key === "Escape") handleClose(); };
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [open, onClose]);
+  }, [isModalOpen, handleClose]);
 
   /* Lock body scroll while open */
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    document.body.style.overflow = isModalOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
-  }, [open]);
+  }, [isModalOpen]);
 
-  if (!open) return null;
+  if (!isModalOpen) return null;
 
   return createPortal(
     <>
@@ -114,7 +120,7 @@ export default function DeleteConfirmModal({
       `}</style>
 
       {/* Backdrop */}
-      <div className="dcm-backdrop" onClick={onClose} aria-hidden="true" />
+      <div className="dcm-backdrop" onClick={handleClose} aria-hidden="true" />
 
       {/* Panel */}
       <div
@@ -132,10 +138,10 @@ export default function DeleteConfirmModal({
         </div>
 
         <h2 className="dcm-title" id="dcm-title">{title}</h2>
-        <p className="dcm-desc" id="dcm-desc">{description}</p>
+        <p className="dcm-desc" id="dcm-desc">{bodyDescription}</p>
 
         <div className="dcm-btn-row">
-          <button type="button" className="dcm-cancel" onClick={onClose}>
+          <button type="button" className="dcm-cancel" onClick={handleClose}>
             Cancel
           </button>
           <button type="button" className="dcm-confirm" onClick={onConfirm} autoFocus>

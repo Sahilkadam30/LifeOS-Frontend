@@ -16,7 +16,8 @@ import { store, persistor } from "./components/store/auth.store";
 import { PersistGate } from "redux-persist/integration/react";
 import "leaflet-geosearch/dist/geosearch.css";
 import TravelSections from "./pages/TravelSections";
-import WritingsPage from "./pages/WritingsPage"
+import WritingsPage from "./pages/WritingsPage";
+import ExplorePage from "./pages/ExplorePage";
 import GymDashboard from "./pages/gym/GymDashboard";
 import WorkoutLog from "./pages/gym/WorkoutLog";
 import FitnessGoals from "./pages/gym/FitnessGoals"
@@ -41,6 +42,12 @@ import LearningJournalPage from "./pages/skills/LearningJournalPage";
 import SkillProgressPage from "./pages/skills/SkillProgressPage";
 import AchievementsPage from "./pages/skills/AchievementsPage";
 import LifeOSChatbot from "./components/chatbot/LifeOSChatbot";
+import LifeJournalPage from "./pages/journal/LifeJournalPage";
+
+import Connect from "./components/connect/Connect";
+import LifeGoalsPage from "./pages/goals/LifeGoalsPage";
+import MusicStudio from "./pages/music/MusicStudio";
+import CustomizePage from "./pages/CustomizePage";
 
 function App() {
   return (
@@ -54,6 +61,7 @@ function App() {
 
             {/* Protected Routes */}
             <Route path="/home" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/customize" element={<ProtectedRoute><CustomizePage /></ProtectedRoute>} />
             <Route path="/travel" element={<ProtectedRoute><VisitedPlace /></ProtectedRoute>} />
 
             <Route path="/travelfeed" element={<ProtectedRoute><TravelFeed /></ProtectedRoute>} />
@@ -83,6 +91,11 @@ function App() {
             <Route path="/skills/journal" element={<ProtectedRoute><LearningJournalPage /></ProtectedRoute>} />
             <Route path="/skills/progress" element={<ProtectedRoute><SkillProgressPage /></ProtectedRoute>} />
             <Route path="/skills/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
+            <Route path="/connect" element={<ProtectedRoute><Connect /></ProtectedRoute>} />
+            <Route path="/explore" element={<ProtectedRoute><ExplorePage /></ProtectedRoute>} />
+            <Route path="/life-goals" element={<ProtectedRoute><LifeGoalsPage /></ProtectedRoute>} />
+            <Route path="/music" element={<ProtectedRoute><MusicStudio /></ProtectedRoute>} />
+            <Route path="/journal" element={<ProtectedRoute><LifeJournalPage /></ProtectedRoute>} />
 
 
 

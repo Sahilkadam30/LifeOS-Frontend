@@ -84,9 +84,15 @@ const WritingCard = ({ item, refreshData }) => {
 
       {/* Footer / Accent label */}
       <div className="flex items-center justify-between border-t border-[#F1F5F9] pt-4 mt-auto">
-        <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-widest bg-[#F5F7FA] px-2.5 py-1 rounded-[6px]">
-          {item.type}
-        </span>
+        {item.type === "POST" ? (
+          <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-[6px] flex items-center gap-1">
+            <span>🌐</span> Community Post • In Explore
+          </span>
+        ) : (
+          <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-widest bg-[#F5F7FA] px-2.5 py-1 rounded-[6px]">
+            {item.type}
+          </span>
+        )}
         <div 
           className="w-3 h-3 rounded-full shadow-inner"
           style={{ backgroundColor: accentColor }}

@@ -243,6 +243,7 @@
   font-size: 13.5px;
   line-height: 1.55;
   word-break: break-word;
+  white-space: pre-wrap;
   position: relative;
 }
 
@@ -406,4 +407,21 @@
     right: 16px;
     font-size: 22px;
   }
+}
+
+/* ── Streaming Cursor (ChatGPT-style blinking caret) ── */
+.chatbot-stream-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: #6366f1;
+  border-radius: 2px;
+  margin-left: 3px;
+  vertical-align: middle;
+  animation: cursor-blink 0.75s step-start infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import API from "../api";
 import imageCompression from "browser-image-compression";
 import { logout } from "../components/store/slice/auth.slice";
+import SuccessModal from "../components/SuccessModal";
 import {
   FiMap, FiCompass, FiHeart, FiBarChart2,
   FiAward, FiHome, FiLogOut, FiArrowLeft,
@@ -126,11 +127,12 @@ export default function AddJourney() {
   const [loading,     setLoading]     = useState(false);
   const [progress,    setProgress]    = useState(0);
   const [isDragging,  setIsDragging]  = useState(false);
-  const [toast,       setToast]       = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [errorToast,  setErrorToast]  = useState(null);
 
-  const showToast = (msg, type = "error") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3500);
+  const showError = (msg) => {
+    setErrorToast(msg);
+    setTimeout(() => setErrorToast(null), 3500);
   };
 
   const processImages = async (files) => {
@@ -168,9 +170,9 @@ export default function AddJourney() {
   };
 
   const handleSubmit = async () => {
-    if (!placeName.trim()) { showToast("Please enter a place name."); return; }
-    if (!caption.trim())   { showToast("Please enter a caption."); return; }
-    if (!images.length)    { showToast("Please add at least one image."); return; }
+    if (!placeName.trim()) { showError("Please enter a place name."); return; }
+    if (!caption.trim())   { showError("Please enter a caption."); return; }
+    if (!images.length)    { showError("Please add at least one image."); return; }
 
     setLoading(true);
     try {
@@ -183,11 +185,11 @@ export default function AddJourney() {
         onUploadProgress: (e) => setProgress(Math.round((e.loaded * 100) / e.total)),
       });
 
-      showToast("Journey uploaded successfully! 🎉", "success");
-      setTimeout(() => navigate("/travelfeed"), 1200);
+      setShowSuccess(true);
+      setTimeout(() => navigate("/travelfeed"), 1600);
     } catch (err) {
       console.error(err);
-      showToast("Upload failed. Please try again.");
+      showError("Upload failed. Please try again.");
     } finally {
       setLoading(false); setProgress(0);
     }
@@ -215,17 +217,17 @@ export default function AddJourney() {
           <p style={{ fontSize: 15, color: "#64748B", margin: 0 }}>Document your travel memories with photos and notes.</p>
         </div>
 
-        {/* ── Toast ──────────────────────────── */}
-        {toast && (
+        {/* ── Error Toast ─────────────────────── */}
+        {errorToast && (
           <div style={{
             position: "fixed", top: 24, right: 24, zIndex: 999,
-            background: toast.type === "success" ? "#16A34A" : "#EF4444",
+            background: "#EF4444",
             color: "#fff", borderRadius: 12, padding: "14px 22px",
             fontSize: 14, fontWeight: 600,
             boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
             animation: "fadeIn 0.3s ease",
           }}>
-            {toast.msg}
+            {errorToast}
           </div>
         )}
 
@@ -362,6 +364,13 @@ export default function AddJourney() {
         @keyframes spin    { to { transform: rotate(360deg); } }
         @keyframes fadeIn  { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
       `}</style>
+
+      <SuccessModal
+        open={showSuccess}
+        onClose={() => { setShowSuccess(false); navigate("/travelfeed"); }}
+        title="Journey Published! ✈️"
+        description="Your travel memory has been saved to your Journey Feed."
+      />
     </div>
   );
 }

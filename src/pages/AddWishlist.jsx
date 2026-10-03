@@ -1,18 +1,18 @@
 import { useState } from "react";
 import API from "../api";
+import SuccessModal from "../components/SuccessModal";
 import { useNavigate } from "react-router-dom";
 
 export default function AddWishlist() {
 
   const [form, setForm] = useState({});
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
     try {
       await API.post("/wishlist", form);
-
-      navigate("/dashboard");
-
+      setShowSuccess(true);
     } catch (err) {
       console.error(err);
     }
@@ -36,34 +36,19 @@ export default function AddWishlist() {
           <input
             className="w-full bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4 outline-none focus:border-[#6C4DFF]"
             placeholder="Place Name"
-            onChange={(e) =>
-              setForm({
-                ...form,
-                placeName: e.target.value,
-              })
-            }
+            onChange={(e) => setForm({ ...form, placeName: e.target.value })}
           />
 
           <input
             type="date"
             className="w-full bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4 outline-none focus:border-[#6C4DFF]"
-            onChange={(e) =>
-              setForm({
-                ...form,
-                planDate: e.target.value,
-              })
-            }
+            onChange={(e) => setForm({ ...form, planDate: e.target.value })}
           />
 
           <input
             className="w-full bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4 outline-none focus:border-[#6C4DFF]"
             placeholder="City"
-            onChange={(e) =>
-              setForm({
-                ...form,
-                city: e.target.value,
-              })
-            }
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -71,23 +56,13 @@ export default function AddWishlist() {
             <input
               className="bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4"
               placeholder="Latitude"
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  latitude: parseFloat(e.target.value),
-                })
-              }
+              onChange={(e) => setForm({ ...form, latitude: parseFloat(e.target.value) })}
             />
 
             <input
               className="bg-[#F8F6F4] border border-[#ECECEC] rounded-2xl px-5 py-4"
               placeholder="Longitude"
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  longitude: parseFloat(e.target.value),
-                })
-              }
+              onChange={(e) => setForm({ ...form, longitude: parseFloat(e.target.value) })}
             />
 
           </div>
@@ -101,6 +76,13 @@ export default function AddWishlist() {
 
         </div>
       </div>
+
+      <SuccessModal
+        open={showSuccess}
+        onClose={() => { setShowSuccess(false); navigate("/travel"); }}
+        title="Wishlist Updated! 🌍"
+        description="Your destination has been added to your travel wishlist."
+      />
     </div>
   );
 }

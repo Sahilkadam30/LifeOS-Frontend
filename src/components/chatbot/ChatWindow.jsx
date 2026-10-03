@@ -25,10 +25,6 @@ const ChatWindow = ({
                 <div className="chatbot-header-avatar">✨</div>
                 <div className="chatbot-header-info">
                     <div className="chatbot-header-title">LifeOS Assistant</div>
-                    <div className="chatbot-header-status">
-                        <span className="chatbot-header-status-dot"></span>
-                        {loading ? "Thinking..." : "Online"}
-                    </div>
                 </div>
                 <button className="chatbot-close-btn" onClick={onClose} aria-label="Close chat">
                     ✕
@@ -43,6 +39,7 @@ const ChatWindow = ({
                         sender={msg.sender}
                         text={msg.text}
                         timestamp={msg.timestamp}
+                        streaming={msg.streaming}
                     />
                 ))}
 

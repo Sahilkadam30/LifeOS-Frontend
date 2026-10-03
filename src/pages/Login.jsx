@@ -30,6 +30,8 @@ const Login = () => {
         console.log("res.data.data", res.data.data);
 
         dispatch(login({ token, user: user }));
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("userId", user.id);
         localStorage.setItem("token", token);
         localStorage.setItem("userId", user.id);
         navigate("/home");
@@ -45,6 +47,9 @@ const Login = () => {
 
   return (
     <div className="auth-container">
+      <div className="auth-blob auth-blob-blue"></div>
+      <div className="auth-blob auth-blob-green"></div>
+      <div className="auth-blob auth-blob-yellow"></div>
       <div className="auth-card">
         <h2>Login</h2>
 

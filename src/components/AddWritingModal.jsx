@@ -11,11 +11,11 @@ const colors = [
   "#8B5CF6",
 ];
 
-const AddWritingModal = ({ closeModal, refreshData }) => {
+const AddWritingModal = ({ closeModal, refreshData, initialType = "NOTE" }) => {
   const [form, setForm] = useState({
     title: "",
     content: "",
-    type: "NOTE",
+    type: initialType,
     cardColor: colors[0],
   });
 
@@ -32,7 +32,7 @@ const AddWritingModal = ({ closeModal, refreshData }) => {
     try {
       await createWriting(form);
       refreshData();
-      setForm({ title: "", content: "", type: "NOTE", cardColor: colors[0] });
+      setForm({ title: "", content: "", type: initialType, cardColor: colors[0] });
       setError("");
       setShowSuccess(true);
     } catch (err) {
@@ -98,7 +98,14 @@ const AddWritingModal = ({ closeModal, refreshData }) => {
                 <option value="NOTE">Note</option>
                 <option value="STORY">Storytelling</option>
                 <option value="POEM">Poem</option>
+                <option value="POST">Thought Post (Visible in Community Explore)</option>
               </select>
+              {form.type === "POST" && (
+                <p className="text-[12px] text-[#2563EB] font-medium pt-1 flex items-center gap-1.5">
+                  <span>✨</span>
+                  <span>This thought post will be visible to all users in the LifeOS Explore community feed.</span>
+                </p>
+              )}
             </div>
 
             {/* Card Accent Color selection */}

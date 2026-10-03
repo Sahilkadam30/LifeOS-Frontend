@@ -6,15 +6,18 @@ import {
   FiLogOut,
   FiZap,
   FiHome,
+  FiSend,
+  FiCompass,
 } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../components/store/slice/auth.slice";
 
 const NAV_ITEMS = [
-  { tab: "NOTE",  label: "Notes",        icon: FiFileText },
-  { tab: "STORY", label: "Storytelling", icon: FiBookOpen },
-  { tab: "POEM",  label: "Poems",        icon: FiEdit3    },
+  { tab: "NOTE",  label: "Notes",            icon: FiFileText },
+  { tab: "STORY", label: "Storytelling",     icon: FiBookOpen },
+  { tab: "POEM",  label: "Poems",            icon: FiEdit3    },
+  { tab: "POST",  label: "Thoughts & Posts", icon: FiSend     },
 ];
 
 const Sidebar = ({ activeTab, setActiveTab, showFavorites, setShowFavorites }) => {
@@ -117,6 +120,23 @@ const Sidebar = ({ activeTab, setActiveTab, showFavorites, setShowFavorites }) =
 
       {/* BOTTOM */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <button
+          onClick={() => navigate("/explore")}
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 12,
+            padding: "11px 14px", borderRadius: 10, border: "1px solid rgba(59,130,246,0.4)", cursor: "pointer",
+            background: "rgba(59,130,246,0.12)", color: "#60A5FA", fontSize: 14, textAlign: "left",
+            fontWeight: 600,
+            transition: "all 0.2s",
+            fontFamily: "'Inter', sans-serif"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.25)"; e.currentTarget.style.color = "#fff"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "rgba(59,130,246,0.12)"; e.currentTarget.style.color = "#60A5FA"; }}
+        >
+          <FiCompass style={{ fontSize: 16 }} />
+          <span>Explore Community</span>
+        </button>
+
         <button
           onClick={() => navigate("/home")}
           style={{

@@ -4,12 +4,13 @@ import API from "../api";
 import MapView from "../components/MapView";
 import TravelSections from "../pages/TravelSections";
 import TravelSidebar from "../components/TravelSidebar";
-import { FiPlus, FiMapPin, FiCompass, FiBriefcase, FiGlobe } from "react-icons/fi";
+import { FiPlus, FiMapPin, FiCompass, FiBriefcase, FiGlobe, FiEdit2 } from "react-icons/fi";
 
 export default function VisitedPlace() {
   const [visited, setVisited] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [sections, setSections] = useState([]);
+  const [targetEditSectionId, setTargetEditSectionId] = useState(null);
 
   const [showAllVisited, setShowAllVisited] = useState(false);
   const [showAllWishlist, setShowAllWishlist] = useState(false);
@@ -18,6 +19,17 @@ export default function VisitedPlace() {
   const location = useLocation();
   const [activePage, setActivePage] = useState(location.state?.activePage || "dashboard");
   const navigate = useNavigate();
+
+  const handleEditSection = (id) => {
+    setTargetEditSectionId(id);
+    const el = document.getElementById(`section-card-${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      const secSection = document.getElementById("active-sections-container");
+      if (secSection) secSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     if (location.state?.activePage) {
@@ -235,27 +247,36 @@ export default function VisitedPlace() {
                     <h2 className="text-[18px] font-bold text-[#1E293B]">
                       Collections
                     </h2>
-                    <button
-                      className="text-[#2563EB] hover:text-[#1D4ED8] text-[13px] font-semibold transition-colors"
-                      onClick={() => setShowAllSections(!showAllSections)}
-                    >
-                      {showAllSections ? "Show Less" : "View All"}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => navigate("/manage-trip", { state: { initialTab: "section" } })}
+                        className="text-[#16A34A] hover:text-[#15803D] text-[13px] font-semibold transition-colors flex items-center gap-1"
+                        title="Create new collection"
+                      >
+                        <FiPlus className="text-sm" /> Add
+                      </button>
+                      <button
+                        className="text-[#2563EB] hover:text-[#1D4ED8] text-[13px] font-semibold transition-colors"
+                        onClick={() => setShowAllSections(!showAllSections)}
+                      >
+                        {showAllSections ? "Show Less" : "View All"}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                     {(showAllSections ? sections : sections.slice(0, 4)).map((section) => (
                       <div
                         key={section.id}
-                        className="bg-[#F8FAFC] border border-[#E2E8F0]/40 rounded-[10px] p-3.5 flex justify-between items-center hover:bg-[#F1F5F9] transition-colors"
+                        className="bg-[#F8FAFC] border border-[#E2E8F0]/40 rounded-[10px] p-3.5 flex justify-between items-center hover:bg-[#F1F5F9] transition-colors group"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                           <div
                             className="w-3.5 h-3.5 rounded-full shadow-inner flex-shrink-0"
                             style={{ backgroundColor: section.color || "#2563EB" }}
                           />
-                          <div>
-                            <h3 className="font-semibold text-[14px] text-[#1E293B]">
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-[14px] text-[#1E293B] truncate">
                               {section.title}
                             </h3>
                             <p className="text-[#64748B] text-[12px] mt-0.5">
@@ -263,6 +284,15 @@ export default function VisitedPlace() {
                             </p>
                           </div>
                         </div>
+
+                        <button
+                          onClick={() => handleEditSection(section.id)}
+                          className="flex items-center gap-1.5 text-[12px] font-semibold text-[#2563EB] hover:text-white bg-white hover:bg-[#2563EB] border border-[#2563EB]/25 px-2.5 py-1 rounded-[6px] shadow-2xs transition-all duration-200 cursor-pointer flex-shrink-0"
+                          title="Edit this collection"
+                        >
+                          <FiEdit2 className="text-[12px]" />
+                          <span>Edit</span>
+                        </button>
                       </div>
                     ))}
                     {sections.length === 0 && (
@@ -274,11 +304,30 @@ export default function VisitedPlace() {
             </div>
 
             {/* Travel Sections lists grid */}
-            <div className="mt-8 pt-4 border-t border-[#E2E8F0]">
-              <h2 className="text-[22px] font-semibold text-[#1E293B] mb-6">
-                Active Sections
-              </h2>
-              <TravelSections />
+            <div id="active-sections-container" className="mt-8 pt-4 border-t border-[#E2E8F0]">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-[22px] font-semibold text-[#1E293B]">
+                    Active Sections
+                  </h2>
+                  <p className="text-[#64748B] text-[14px] mt-0.5">
+                    Click the edit icon on any collection card to customize its title, color, or destinations.
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate("/manage-trip", { state: { initialTab: "section" } })}
+                  className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-[8px] text-[13px] font-medium transition-colors shadow-2xs"
+                >
+                  <FiPlus className="text-sm" />
+                  <span>New Section</span>
+                </button>
+              </div>
+
+              <TravelSections
+                targetEditId={targetEditSectionId}
+                onSectionUpdated={(updated) => setSections(updated)}
+                onEditDone={() => setTargetEditSectionId(null)}
+              />
             </div>
           </>
         ) : (

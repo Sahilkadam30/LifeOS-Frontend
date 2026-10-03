@@ -1,58 +1,165 @@
-body {
-  margin: 0;
-  background-color: #C9996B;
-  font-family: Arial, sans-serif;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+/* ── Page layout — scoped entirely to auth pages ── */
 .auth-container {
-  height: 100vh;
+  position: fixed;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 24px;
+  overflow: hidden;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Intro-matching gradient background */
+  background: radial-gradient(circle at 50% 42%,
+    rgba(255,255,255,.98) 0 20%,
+    rgba(238,248,255,.92) 45%,
+    rgba(220,240,252,.92) 100%);
 }
 
+/* ── Floating glow blobs — all scoped inside .auth-container ── */
+.auth-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(55px);
+  pointer-events: none;
+  opacity: 0;
+  animation: authFloat 8s ease-in-out infinite;
+}
+.auth-blob-blue  { width: 320px; height: 320px; background: #69b9ff; opacity: .38; left: -60px; top: -60px; animation-duration: 8s; }
+.auth-blob-green { width: 280px; height: 280px; background: #66e0ad; opacity: .35; right: -60px; bottom: -60px; animation-duration: 9s; animation-direction: reverse; }
+.auth-blob-yellow{ width: 180px; height: 180px; background: #ffd76b; opacity: .32; right: 22%; top: 6%; animation-duration: 7s; animation-delay: 2s; }
+
+/* ── Card ── */
 .auth-card {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 350px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: 40px 36px;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 8px 40px rgba(45, 100, 160, 0.12),
+    0 2px 8px rgba(45, 100, 160, 0.06);
+  animation: authCardIn 0.7s cubic-bezier(.2,.9,.2,1) both;
 }
 
+/* ── Logo mark above heading ── */
+.auth-card::before {
+  content: "LifeOS";
+  display: block;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -.06em;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #2d9cf4, #36d69a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Heading ── */
 .auth-card h2 {
   text-align: center;
-  color: black;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #17233f;
+  margin-bottom: 24px;
+  letter-spacing: -.03em;
 }
 
+/* ── Inputs ── */
 .auth-card input {
+  display: block;
   width: 100%;
-  padding: 10px;
+  padding: 12px 14px;
   margin: 8px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: 12px;
+  border: 1.5px solid rgba(39,123,189,.2);
+  background: rgba(255,255,255,.8);
+  color: #17233f;
+  font-size: 0.93rem;
+  font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+  box-sizing: border-box;
 }
+.auth-card input::placeholder { color: #8fa8bc; }
+.auth-card input:focus {
+  border-color: #2d9cf4;
+  box-shadow: 0 0 0 3px rgba(45,156,244,.15);
+  background: #fff;
+}
+.auth-card input:disabled { opacity: .55; cursor: not-allowed; }
 
+/* ── Primary button ── */
 .auth-card button {
+  display: block;
   width: 100%;
-  padding: 10px;
-  background: black;
-  color: white;
+  margin-top: 18px;
+  padding: 13px;
+  background: linear-gradient(135deg, #2d9cf4, #36d69a);
+  color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
+  font-size: 0.97rem;
+  font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
+  letter-spacing: .02em;
+  box-shadow: 0 6px 22px rgba(45,156,244,.28);
+  transition: transform .18s, box-shadow .18s, opacity .18s;
+  box-sizing: border-box;
 }
+.auth-card button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(45,156,244,.38);
+}
+.auth-card button:active:not(:disabled) { transform: translateY(0); }
+.auth-card button:disabled { opacity: .6; cursor: not-allowed; }
 
+/* ── Switch link ── */
 .switch-link {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2d9cf4;
   cursor: pointer;
-  color: black;
+  transition: color .18s;
+}
+.switch-link:hover { color: #36d69a; }
+
+/* ── Error text ── */
+.error-text {
+  color: #e05050;
+  font-size: 0.83rem;
+  margin-top: 6px;
+  margin-bottom: 8px;
+  text-align: left;
+  font-weight: 500;
 }
 
-.error-text {
-  color: red;
-  font-size: 14px;
-  margin-top: 8px;
-  margin-bottom: 10px;
-  text-align: left;
+/* ── Animations ── */
+@keyframes authFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(22px, -18px) scale(1.07); }
 }
+@keyframes authCardIn {
+  from { opacity: 0; transform: translateY(28px) scale(.95); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
+@media (max-width: 480px) {
+  .auth-card { padding: 30px 22px; border-radius: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-blob, .auth-card { animation: none !important; }
+}
+

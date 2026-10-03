@@ -7,6 +7,7 @@ const menu = [
   { name: "Task Manager",     path: "/planner/tasks",     icon: "📝", end: false },
   { name: "Calendar View",    path: "/planner/calendar",  icon: "📅", end: false },
   { name: "Deadline Tracker", path: "/planner/deadlines", icon: "⏰", end: false },
+  { name: "Life Goals",       path: "/life-goals",        icon: "🎯", end: false },
 ];
 
 export default function PlannerSidebar() {

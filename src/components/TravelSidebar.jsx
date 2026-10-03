@@ -107,7 +107,7 @@ export default function TravelSidebar({ activePage, setActivePage }) {
           })}
 
           {/* SETTINGS */}
-          <div
+          {/* <div
             onClick={() => handleNavigation("dashboard")}
             style={{
               width: "100%", display: "flex", alignItems: "center", gap: 12,
@@ -124,7 +124,7 @@ export default function TravelSidebar({ activePage, setActivePage }) {
           >
             <FiSettings style={{ fontSize: 16, flexShrink: 0 }} />
             <span>Settings</span>
-          </div>
+          </div> */}
         </div>
       </div>
 

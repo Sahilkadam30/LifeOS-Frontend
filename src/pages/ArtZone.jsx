@@ -17,7 +17,9 @@ import {
   MessageSquare, 
   Trash2, 
   Calendar,
-  User
+  User,
+  Globe,
+  Lock
 } from "lucide-react";
 
 let stompClient = null;
@@ -183,6 +185,16 @@ export default function ArtZone() {
     } finally {
       setIsDeleteModalOpen(false);
       setPostToDelete(null);
+    }
+  };
+
+  // ================= TOGGLE VISIBILITY =================
+  const toggleVisibility = async (id) => {
+    try {
+      const res = await API.put(`/art/toggle-visibility/${id}`);
+      setPosts(posts.map((p) => p.id === id ? { ...p, public: res.data.public } : p));
+    } catch (err) {
+      console.error("Failed to toggle visibility:", err);
     }
   };
 
@@ -369,6 +381,15 @@ export default function ArtZone() {
                     <Calendar size={12} />
                     {new Date(post.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </div>
+
+                  {/* Visibility Badge */}
+                  <div className={`absolute top-3 right-3 backdrop-blur-md px-2.5 py-1 rounded-[6px] text-[11px] font-semibold flex items-center gap-1.5 shadow-sm ${
+                    post.public
+                      ? "bg-[#2563EB]/90 text-white"
+                      : "bg-[#1E293B]/80 text-[#94A3B8]"
+                  }`}>
+                    {post.public ? <><Globe size={11} /> Public</> : <><Lock size={11} /> Private</>}
+                  </div>
                 </div>
 
                 {/* CAPTION */}
@@ -401,13 +422,26 @@ export default function ArtZone() {
                   </div>
 
                   {post.username === user && (
-                    <button
-                      onClick={() => deletePost(post.id)}
-                      className="flex items-center gap-1 text-[13px] text-[#94A3B8] hover:text-[#EF4444] transition-colors font-medium"
-                    >
-                      <Trash2 size={14} />
-                      <span>Delete</span>
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => toggleVisibility(post.id)}
+                        className={`flex items-center gap-1 text-[13px] font-medium transition-colors ${
+                          post.public
+                            ? "text-[#2563EB] hover:text-[#1D4ED8]"
+                            : "text-[#64748B] hover:text-[#2563EB]"
+                        }`}
+                        title={post.public ? "Make Private" : "Make Public"}
+                      >
+                        {post.public ? <><Globe size={13} /><span>Public</span></> : <><Lock size={13} /><span>Private</span></>}
+                      </button>
+                      <button
+                        onClick={() => deletePost(post.id)}
+                        className="flex items-center gap-1 text-[13px] text-[#94A3B8] hover:text-[#EF4444] transition-colors font-medium"
+                      >
+                        <Trash2 size={14} />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   )}
                 </div>
 

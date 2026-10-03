@@ -1,12 +1,13 @@
 import { useState } from "react";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, UploadCloud, Sparkles, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, UploadCloud, Image as ImageIcon, Globe, Lock } from "lucide-react";
 
 export default function AddArt() {
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [caption, setCaption] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [success, setSuccess] = useState(false);
@@ -16,29 +17,13 @@ export default function AddArt() {
   const handleFiles = (selectedFiles) => {
     const fileArray = Array.from(selectedFiles);
     setFiles(fileArray);
-
-    const previewArray = fileArray.map(file =>
-      URL.createObjectURL(file)
-    );
+    const previewArray = fileArray.map(file => URL.createObjectURL(file));
     setPreviews(previewArray);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     handleFiles(e.dataTransfer.files);
-  };
-
-  const generateCaption = () => {
-    const suggestions = [
-      "Lost in creativity 🎨",
-      "Art speaks where words fail ✨",
-      "A piece of my imagination 💭",
-      "Colors telling my story 🌈",
-      "Created with passion ❤️",
-    ];
-
-    const random = suggestions[Math.floor(Math.random() * suggestions.length)];
-    setCaption(random);
   };
 
   const handleSubmit = async () => {
@@ -55,6 +40,7 @@ export default function AddArt() {
         const formData = new FormData();
         formData.append("file", files[i]);
         formData.append("caption", caption);
+        formData.append("isPublic", isPublic);
 
         await API.post("/art/post", formData, {
           onUploadProgress: (e) => {
@@ -152,15 +138,43 @@ export default function AddArt() {
           />
         </div>
 
-        {/* Helper Assist Button */}
-        <button
-          onClick={generateCaption}
-          disabled={loading}
-          className="mt-2.5 text-[#2563EB] hover:text-[#1D4ED8] text-[13px] font-semibold flex items-center gap-1.5 transition"
-        >
-          <Sparkles size={14} />
-          <span>Auto-generate Caption</span>
-        </button>
+        {/* Public / Private Toggle */}
+        <div className="mt-5">
+          <label className="text-[12px] font-semibold text-[#64748B] uppercase tracking-wider block mb-2">
+            Visibility
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setIsPublic(false)}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] border text-[13px] font-semibold transition-all duration-200 ${
+                !isPublic
+                  ? "bg-[#1E293B] border-[#1E293B] text-white shadow-sm"
+                  : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#94A3B8]"
+              }`}
+            >
+              <Lock size={14} />
+              Private
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPublic(true)}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] border text-[13px] font-semibold transition-all duration-200 ${
+                isPublic
+                  ? "bg-[#2563EB] border-[#2563EB] text-white shadow-sm"
+                  : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#94A3B8]"
+              }`}
+            >
+              <Globe size={14} />
+              Public
+            </button>
+          </div>
+          <p className="text-[11px] text-[#94A3B8] mt-2">
+            {isPublic
+              ? "🌐 This artwork will appear on LifeOS Explore for everyone to see."
+              : "🔒 This artwork is only visible in your Art Zone."}
+          </p>
+        </div>
 
         {/* Progress bar */}
         {loading && (
